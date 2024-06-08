@@ -7,10 +7,8 @@ import numpy as np
 from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 from robotmodels.utils.robotmodel import RobotModel, LocalRobotModel
 
-
 from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
 from urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
-
 
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
@@ -38,22 +36,21 @@ def initalize_environment(render=True):
     )
     """
 
-    if os.path.exists(ROBOTTYPE):
-        shutil.rmtree(ROBOTTYPE)
+    robot_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE)
+    if os.path.exists(robot_dir):
+        shutil.rmtree(robot_dir)
     robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
-    robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
+    robot_model.copy_model(robot_dir)
     del robot_model
 
     robot_model = LocalRobotModel(ROBOTTYPE, ROBOTMODEL)
 
-
     xml_file = robot_model.get_xml_path()
-    robots  = [
+    print(xml_file)
+    robots = [
         GenericMujocoRobot(xml_file=xml_file, mode="vel"),
     ]
-    home_config = np.array([-1.0,0,0,-1.57079,0,1.57079,-0.7853, 0.04, 0.04])
-
-
+    home_config = np.array([0, -1.57079, 0, 1.57079, -0.7853, 0.04, 0.04])
 
     # Definition of the obstacle.
     static_obst_dict = {
@@ -148,8 +145,8 @@ def set_planner(goal: GoalComposition, dt: float):
         urdf = file.read()
     forward_kinematics = GenericURDFFk(
         urdf,
-        rootLink="panda_link0",
-        end_link="panda_link9",
+        root_link="panda_link0",
+        end_links=["panda_link9"],
     )
     planner = ParameterizedFabricPlanner(
         7,
@@ -160,14 +157,14 @@ def set_planner(goal: GoalComposition, dt: float):
     collision_links = ['panda_link9']
     self_collision_pairs = {}
     panda_limits = [
-            [-2.8973, 2.8973],
-            [-1.7628, 1.7628],
-            [-2.8973, 2.8973],
-            [-3.0718, -0.0698],
-            [-2.8973, 2.8973],
-            [-0.0175, 3.7525],
-            [-2.8973, 2.8973]
-        ]
+        [-2.8973, 2.8973],
+        [-1.7628, 1.7628],
+        [-2.8973, 2.8973],
+        [-3.0718, -0.0698],
+        [-2.8973, 2.8973],
+        [-0.0175, 3.7525],
+        [-2.8973, 2.8973]
+    ]
     # The planner hides all the logic behind the function set_components.
     planner.set_components(
         collision_links=collision_links,
@@ -180,13 +177,14 @@ def set_planner(goal: GoalComposition, dt: float):
     planner.concretize(mode="vel", time_step=dt)
     return planner
 
+
 def forward_simulate(
         planner: ParameterizedFabricPlanner,
         q0: np.ndarray,
         arguments: dict,
         n_steps: int,
         dt: float,
-        ) -> np.ndarray:
+) -> np.ndarray:
     trajectory = np.zeros((n_steps, q0.size))
     dq = np.zeros_like(q0)
     q = deepcopy(q0)
@@ -195,12 +193,10 @@ def forward_simulate(
     for i in range(n_steps):
         trajectory[i] = deepcopy(q)
         dq_new = planner.compute_action(q=q, qdot=dq, **arguments)
-        dq = alpha * dq +  (1-alpha) * dq_new
+        dq = alpha * dq + (1 - alpha) * dq_new
         q = q + dq * dt
 
     return trajectory
-
-
 
 
 def run_panda_example(n_steps=5000, render=True):
@@ -223,13 +219,12 @@ def run_panda_example(n_steps=5000, render=True):
         radius_obst_0=obstacles[0].size()[0],
         x_obst_0=obstacles[0].position(),
         constraint_0=np.array([0.0, 0.0, 1.0, -0.1]),
-        #constraint_1=np.array([0.0, 1.0, 0.0, 0.0]),
+        # constraint_1=np.array([0.0, 1.0, 0.0, 0.0]),
     )
 
     q0 = ob['robot_0']['joint_state']['position'][0:7]
     trajectory_forward = forward_simulate(planner, q0, arguments, n_steps, env.dt)
     trajectory_actual = np.zeros_like(trajectory_forward)
-
 
     for i in range(n_steps):
         q = ob['robot_0']['joint_state']['position'][0:7]
