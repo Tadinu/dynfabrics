@@ -1,6 +1,6 @@
 import numpy as np
 import casadi as ca
-from forwardkinematics.planarFks.planarArmFk import PlanarArmFk
+from dynfabrics.forwardkinematics.planarFks.planarArmFk import PlanarArmFk
 
 
 def main():
@@ -11,8 +11,8 @@ def main():
     fk_numpy = fk.numpy(q_np, 5, parent_link=4, position_only=True)
     return fk_casadi, fk_numpy
 
+
 if __name__ == "__main__":
     fk_casadi, fk_numpy = main()
     print(fk_casadi)
     print(fk_numpy)
-

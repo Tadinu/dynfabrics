@@ -1,7 +1,7 @@
 import numpy as np
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.urdf_common.bicycle_model import BicycleModel
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.urdf_common.bicycle_model import BicycleModel
 
 
 def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
@@ -10,10 +10,11 @@ def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
             urdf='prius.urdf',
             mode="vel",
             scaling=0.3,
-            wheel_radius = 0.31265,
-            wheel_distance = 0.494,
-            spawn_offset = np.array([-0.435, 0.0, 0.05]),
-            actuated_wheels=['front_right_wheel_joint', 'front_left_wheel_joint', 'rear_right_wheel_joint', 'rear_left_wheel_joint'],
+            wheel_radius=0.31265,
+            wheel_distance=0.494,
+            spawn_offset=np.array([-0.435, 0.0, 0.05]),
+            actuated_wheels=['front_right_wheel_joint', 'front_left_wheel_joint', 'rear_right_wheel_joint',
+                             'rear_left_wheel_joint'],
             steering_links=['front_right_steer_joint', 'front_left_steer_joint'],
             facing_direction='-x'
         )
@@ -31,6 +32,7 @@ def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
         history.append(ob)
     env.close()
     return history
+
 
 if __name__ == "__main__":
     run_prius(render=True)

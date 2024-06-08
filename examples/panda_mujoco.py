@@ -1,23 +1,15 @@
-from copy import deepcopy
 import os
-import shutil
-import gymnasium as gym
 import numpy as np
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
-from robotmodels.utils.robotmodel import RobotModel, LocalRobotModel
-
-from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
-from urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
-
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.obstacles.box_obstacle import BoxObstacle
-
+from dynfabrics.forwardkinematics.xmlFks.generic_xml_fk import GenericXMLFk
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
-ROBOTTYPE = 'panda'
-ROBOTMODEL = 'panda_without_gripper'
+from mjmanip.robot.panda_nohand import PANDA_XML_PATH
 
 
 def initalize_environment(render=True):
@@ -27,28 +19,7 @@ def initalize_environment(render=True):
     Adds obstacles and goal visualizaion to the environment based and
     steps the simulation once.
     """
-    """
-    robots = [
-        GenericUrdfReacher(urdf="panda.urdf", mode="acc"),
-    ]
-    env: UrdfEnv  = gym.make(
-        "urdf-env-v0",
-        dt=0.01, robots=robots, render=render
-    )
-    """
-
-    if os.path.exists(ROBOTTYPE):
-        shutil.rmtree(ROBOTTYPE)
-    robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
-    robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
-    del robot_model
-
-    robot_model = LocalRobotModel(ROBOTTYPE, ROBOTMODEL)
-
-    xml_file = robot_model.get_xml_path()
-    robots = [
-        GenericMujocoRobot(xml_file=xml_file, mode="vel"),
-    ]
+    robots = [GenericMujocoRobot(xml_file=PANDA_XML_PATH)]
     home_config = np.array([0, -1.57079, 0, 1.57079, -0.7853, 0.04, 0.04])
 
     # Definition of the obstacles
@@ -94,8 +65,8 @@ def initalize_environment(render=True):
             "weight": 1.0,
             "is_primary_goal": False,
             "indices": [0, 1, 2],
-            "parent_link": "panda_link0",
-            "child_link": "panda_hand",
+            "parent_link": "link0",
+            "child_link": "attachment",
             "desired_position": [0.5, 0.6, 0.3],
             "epsilon": 0.05,
             "type": "staticSubGoal",
@@ -104,8 +75,8 @@ def initalize_environment(render=True):
             "weight": 2.0,
             "is_primary_goal": True,
             "indices": [0, 1, 2],
-            "parent_link": "panda_link7",
-            "child_link": "panda_hand",
+            "parent_link": "link7",
+            "child_link": "attachment",
             "desired_position": [0.0, 0.0, -0.1],
             "epsilon": 0.05,
             "type": "staticSubGoal",
@@ -116,14 +87,6 @@ def initalize_environment(render=True):
     env = GenericMujocoEnv(robots=robots, obstacles=obstacles, goals=goal.sub_goals(), render=render)
     env.reset(pos=home_config)
 
-    """
-    env.add_sensor(full_sensor, [0])
-    for obst in obstacles:
-        env.add_obstacle(obst)
-    for sub_goal in goal.sub_goals():
-        env.add_goal(sub_goal)
-    env.set_spaces()
-    """
     return (env, goal, obstacles)
 
 
@@ -171,12 +134,12 @@ def set_planner(goal: GoalComposition, dt: float):
         "1.0/(x**1) * xdot**2"
     )
     absolute_path = os.path.dirname(os.path.abspath(__file__))
-    with open(absolute_path + "/panda_for_fk.urdf", "r", encoding="utf-8") as file:
-        urdf = file.read()
-    forward_kinematics = GenericURDFFk(
-        urdf,
-        root_link="panda_link0",
-        end_links=["panda_link9"],
+    with open(PANDA_XML_PATH, "r", encoding="utf-8") as file:
+        xml = file.read()
+    forward_kinematics = GenericXMLFk(
+        xml,
+        root_link="link0",
+        end_links=["attachment"],
     )
     planner = ParameterizedFabricPlanner(
         7,
@@ -184,7 +147,7 @@ def set_planner(goal: GoalComposition, dt: float):
         collision_geometry=collision_geometry,
         geometry_plane_constraint=geometry_plane_constraint,
     )
-    collision_links = ['panda_link9']
+    collision_links = ['link7']
     self_collision_pairs = {}
     panda_limits = [
         [-2.8973, 2.8973],
@@ -208,23 +171,21 @@ def set_planner(goal: GoalComposition, dt: float):
     return planner
 
 
-def forward_simulate(
-        planner: ParameterizedFabricPlanner,
-        q0: np.ndarray,
-        arguments: dict,
-        n_steps: int,
-        dt: float,
-) -> np.ndarray:
+def forward_simulate(planner: ParameterizedFabricPlanner,
+                     q0: np.ndarray,
+                     arguments: dict,
+                     n_steps: int,
+                     dt: float) -> np.ndarray:
     trajectory = np.zeros((n_steps, q0.size))
     dq = np.zeros_like(q0)
-    q = deepcopy(q0)
+    q = q0.copy()
     alpha = 0.43
     alpha = 0
     for i in range(n_steps):
-        trajectory[i] = deepcopy(q)
+        trajectory[i] = q.copy()
         dq_new = planner.compute_action(q=q, qdot=dq, **arguments)
         dq = alpha * dq + (1 - alpha) * dq_new
-        q = q + dq * dt
+        q += dq * dt
 
     return trajectory
 
@@ -245,7 +206,7 @@ def run_panda_example(n_steps=10000, render=True):
         weight_goal_0=goal.sub_goals()[0].weight(),
         x_goal_1=goal.sub_goals()[1].position(),
         weight_goal_1=goal.sub_goals()[1].weight(),
-        radius_body_panda_link9=0.20,
+        radius_body_link7=0.20,
         radius_obst_0=obstacles[0].size()[0],
         x_obst_0=obstacles[0].position(),
         constraint_0=np.array([0.0, 0.0, 1.0, -0.1]),

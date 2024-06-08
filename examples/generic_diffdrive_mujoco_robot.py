@@ -1,7 +1,7 @@
 import numpy as np
 from typing_extensions import List
-from urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
-from urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
+from dynfabrics.urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
 
 
 class GenericDiffDriveMujocoRobot(GenericMujocoRobot, GenericDiffDriveRobot):
@@ -23,4 +23,5 @@ class GenericDiffDriveMujocoRobot(GenericMujocoRobot, GenericDiffDriveRobot):
                                        spawn_rotation=spawn_rotation,
                                        facing_direction=facing_direction,
                                        not_actuated_joints=not_actuated_joints)
+
     pass

@@ -5,7 +5,7 @@ import csv
 import numpy as np
 from omegaconf import OmegaConf
 
-from mpscenes.obstacles.collision_obstacle import CollisionObstacle, CollisionObstacleConfig, GeometryConfig
+from dynfabrics.mpscenes.obstacles.collision_obstacle import CollisionObstacle, CollisionObstacleConfig, GeometryConfig
 
 
 @dataclass
@@ -87,7 +87,6 @@ class SphereObstacle(CollisionObstacle):
         )
         self._config.geometry.position = random_pos.tolist()
         self._config.geometry.radius = float(random_radius[0])
-
 
     def csv(self, file_name, samples=100):
         theta = np.arange(-np.pi, np.pi + np.pi / samples, step=np.pi / samples)

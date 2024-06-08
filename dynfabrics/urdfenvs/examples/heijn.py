@@ -1,9 +1,10 @@
 import numpy as np
-from urdfenvs.scene_examples.obstacles import *
-from urdfenvs.scene_examples.goal import *
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.scene_examples.obstacles import *
+from dynfabrics.urdfenvs.scene_examples.goal import *
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
 
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+
 
 def run_point_robot(n_steps=1000, render=False, goal=True, obstacles=True):
     robots = [

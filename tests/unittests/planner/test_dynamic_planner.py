@@ -1,11 +1,11 @@
 import pytest
 import numpy as np
 
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
-from forwardkinematics.planarFks.point_fk import PointFk
+from dynfabrics.forwardkinematics.planarFks.point_fk import PointFk
 
 
 @pytest.fixture

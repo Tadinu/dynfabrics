@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import casadi as ca
-from forwardkinematics.fksCommon.fk import ForwardKinematics
+from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
 import numpy as np
 import logging
 

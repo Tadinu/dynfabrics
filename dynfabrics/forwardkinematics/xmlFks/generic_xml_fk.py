@@ -4,9 +4,10 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import casadi as ca
 
-from forwardkinematics.fksCommon.fk import ForwardKinematics
+from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
 
 casadiOrNumpy = Union[ca.SX, np.ndarray]
+
 
 def matrix_multiply(A: casadiOrNumpy, B: casadiOrNumpy) -> casadiOrNumpy:
     if isinstance(A, np.ndarray) and isinstance(B, np.ndarray):
@@ -20,9 +21,10 @@ def matrix_multiply(A: casadiOrNumpy, B: casadiOrNumpy) -> casadiOrNumpy:
     else:
         raise ValueError(f"A({type(A)}) and B({type(B)}) must be either casadi or numpy arrays.")
 
+
 def get_T_element(
         element: ET.Element,
-    ) -> np.ndarray:
+) -> np.ndarray:
     """
     Get the transformation matrix of an element.
     """
@@ -38,6 +40,7 @@ def get_T_element(
         translation=offset
     )
 
+
 def quat2rotMat(quat: List[float]) -> np.ndarray:
     """
     Convert a quaternion to a rotation matrix.
@@ -52,6 +55,7 @@ def quat2rotMat(quat: List[float]) -> np.ndarray:
         [2 * q1 * q3 - 2 * q0 * q2, 2 * q2 * q3 + 2 * q0 * q1, 1 - 2 * q1 * q1 - 2 * q2 * q2]
     ])
     return R
+
 
 def axis2rotMat(axis: List[int], theta: casadiOrNumpy) -> casadiOrNumpy:
     """
@@ -85,14 +89,16 @@ def axis2rotMat(axis: List[int], theta: casadiOrNumpy) -> casadiOrNumpy:
     else:
         raise ValueError(f"theta {type(theta)} must be either casadi or numpy array.")
 
+
 def homogeneous_transformation(
         rotation: Optional[casadiOrNumpy] = None,
         translation: Optional[casadiOrNumpy] = None,
-    ) -> casadiOrNumpy:
+) -> casadiOrNumpy:
     """
     Construct a homogeneous transformation matrix from rotation matrix and translation vector.
     """
-    if rotation is not None and isinstance(rotation, ca.SX) or translation is not None and isinstance(translation, ca.SX):
+    if rotation is not None and isinstance(rotation, ca.SX) or translation is not None and isinstance(translation,
+                                                                                                      ca.SX):
         T = ca.SX.eye(4)
     else:
         T = np.eye(4)
@@ -103,10 +109,15 @@ def homogeneous_transformation(
     return T
 
 
+class LinkNotInXMLError(Exception):
+    pass
+
+
 class GenericXMLFk(ForwardKinematics):
     """
     Forward kinematics class for Mujoco XML files.
     """
+
     def __init__(self, xml: str, root_link: str, end_links: List[str], base_type: str = 'holonomic'):
         """
         Initialize the forward kinematics class.
@@ -116,38 +127,38 @@ class GenericXMLFk(ForwardKinematics):
         """
         super().__init__()
         self._xml = xml
+        self._desc = xml
         self.tree = ET.ElementTree(ET.fromstring(xml))
         self.root = self.tree.getroot()
 
-
     def casadi(
-        self, q: ca.SX,
-        child_link: str,
-        parent_link: Union[str, None] = None,
-        link_transformation: np.ndarray = np.eye(4),
-        position_only: bool = False
+            self, q: ca.SX,
+            child_link: str,
+            parent_link: Union[str, None] = None,
+            link_transformation: np.ndarray = np.eye(4),
+            position_only: bool = False
     ) -> ca.SX:
         return self.fk(
             q, child_link, parent_link, link_transformation, position_only
         )
 
     def numpy(
-        self, q: np.ndarray,
-        child_link: str,
-        parent_link: Union[str, None] = None,
-        link_transformation: np.ndarray = np.eye(4),
-        position_only: bool = False
+            self, q: np.ndarray,
+            child_link: str,
+            parent_link: Union[str, None] = None,
+            link_transformation: np.ndarray = np.eye(4),
+            position_only: bool = False
     ) -> ca.SX:
         return self.fk(
             q, child_link, parent_link, link_transformation, position_only
         )
 
     def fk(
-        self, q: Union[ca.SX, np.ndarray],
-        child_link: str,
-        parent_link: Union[str, None] = None,
-        link_transformation: np.ndarray = np.eye(4),
-        position_only: bool = False
+            self, q: Union[ca.SX, np.ndarray],
+            child_link: str,
+            parent_link: Union[str, None] = None,
+            link_transformation: np.ndarray = np.eye(4),
+            position_only: bool = False
     ) -> casadiOrNumpy:
         """
         Compute the forward kinematics of the robot.
@@ -203,9 +214,6 @@ class GenericXMLFk(ForwardKinematics):
             raise ValueError(f"Child link {child_link} not found in XML.")
         else:
             if position_only:
-                return T[0:3,3]
+                return T[0:3, 3]
             else:
                 return T
-
-
-

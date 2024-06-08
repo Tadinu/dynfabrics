@@ -1,7 +1,7 @@
 import sys
 from dataclasses import dataclass
 from typing import List
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.components.robot_representation import RobotRepresentation
 from dynfabrics.components.environment import Environment

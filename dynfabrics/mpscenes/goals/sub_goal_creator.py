@@ -1,7 +1,7 @@
-from mpscenes.goals.static_sub_goal import StaticSubGoal
-from mpscenes.goals.static_joint_space_sub_goal import StaticJointSpaceSubGoal
-from mpscenes.goals.dynamic_sub_goal import DynamicSubGoal
-from mpscenes.common.errors import UnknownSubGoalType
+from dynfabrics.mpscenes.goals.static_sub_goal import StaticSubGoal
+from dynfabrics.mpscenes.goals.static_joint_space_sub_goal import StaticJointSpaceSubGoal
+from dynfabrics.mpscenes.goals.dynamic_sub_goal import DynamicSubGoal
+from dynfabrics.mpscenes.common.errors import UnknownSubGoalType
 
 
 class SubGoalCreator(object):

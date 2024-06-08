@@ -1,9 +1,9 @@
 import gymnasium as gym
-from urdfenvs.robots.tiago import TiagoRobot
+from dynfabrics.urdfenvs.robots.tiago import TiagoRobot
 
 from multiprocessing import Process, Pipe
 import numpy as np
-from urdfenvs.keyboard_input.keyboard_input_responder import Responder
+from dynfabrics.urdfenvs.keyboard_input.keyboard_input_responder import Responder
 from pynput.keyboard import Key
 
 
@@ -20,7 +20,6 @@ def run_tiago_keyboard(conn, n_steps=10000, render=True):
     # create zero input action
     action = np.zeros(env.n())
     for i in range(n_steps):
-
         # request and receive action
         conn.send({"request_action": True, "kill_child": False})
         keyboard_data = conn.recv()
@@ -34,7 +33,6 @@ def run_tiago_keyboard(conn, n_steps=10000, render=True):
 
 
 if __name__ == "__main__":
-
     # setup multi threading with a pipe connection
     parent_conn, child_conn = Pipe()
 

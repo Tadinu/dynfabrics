@@ -3,31 +3,31 @@ from dataclasses import dataclass, field
 from abc import abstractmethod
 import numpy as np
 
-from mpscenes.common.component import MPComponent
+from dynfabrics.mpscenes.common.component import MPComponent
 
 
 def quaternion_to_homogeneous_matrix(
-    translation: np.ndarray, quaternion: np.ndarray
+        translation: np.ndarray, quaternion: np.ndarray
 ) -> np.ndarray:
     w, x, y, z = quaternion
 
     # Normalize the quaternion
-    norm = np.sqrt(w**2 + x**2 + y**2 + z**2)
+    norm = np.sqrt(w ** 2 + x ** 2 + y ** 2 + z ** 2)
     w /= norm
     x /= norm
     y /= norm
     z /= norm
 
     # Calculate transformation matrix elements
-    xx = 1 - 2 * y**2 - 2 * z**2
+    xx = 1 - 2 * y ** 2 - 2 * z ** 2
     xy = 2 * x * y - 2 * w * z
     xz = 2 * x * z + 2 * w * y
     yx = 2 * x * y + 2 * w * z
-    yy = 1 - 2 * x**2 - 2 * z**2
+    yy = 1 - 2 * x ** 2 - 2 * z ** 2
     yz = 2 * y * z - 2 * w * x
     zx = 2 * x * z - 2 * w * y
     zy = 2 * y * z + 2 * w * x
-    zz = 1 - 2 * x**2 - 2 * y**2
+    zz = 1 - 2 * x ** 2 - 2 * y ** 2
 
     # Construct the transformation matrix
     transformation_matrix = np.array(
@@ -92,6 +92,7 @@ class CollisionObstacleConfig:
     low: Optional[GeometryConfig] = None
     high: Optional[GeometryConfig] = None
     rgba: List[float] = field(default_factory=lambda: [0.0, 0.0, 0.0, 1.0])
+
 
 class CollisionObstacle(MPComponent):
     """
@@ -191,11 +192,10 @@ class CollisionObstacle(MPComponent):
         if len(positions.shape) > 1:
             nb_points = positions.shape[0]
             positions_homo = np.transpose(np.append(positions, np.ones((nb_points, 1)), axis=1))
-            return np.dot(np.linalg.inv(transformation_matrix), positions_homo)[0:3,:]
+            return np.dot(np.linalg.inv(transformation_matrix), positions_homo)[0:3, :]
         else:
             positions_homo = np.transpose(np.append(positions, 1))
             return np.dot(np.linalg.inv(transformation_matrix), positions_homo)[0:3]
-
 
     @abstractmethod
     def distance(self, position: np.ndarray) -> float:

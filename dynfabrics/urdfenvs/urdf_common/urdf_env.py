@@ -8,9 +8,9 @@ import dill
 import gymnasium as gym
 import numpy as np
 import pybullet
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.goals.sub_goal import SubGoal
-from mpscenes.obstacles.collision_obstacle import CollisionObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.goals.sub_goal import SubGoal
+from dynfabrics.mpscenes.obstacles.collision_obstacle import CollisionObstacle
 
 from dynfabrics.urdfenvs.sensors.sensor import Sensor
 from dynfabrics.urdfenvs.urdf_common.generic_robot import GenericRobot
@@ -374,7 +374,7 @@ class UrdfEnv(gym.Env):
         Parameters
         ----------
 
-        obst: Obstacle from mpscenes
+        obst: Obstacle from dynfabrics.mpscenes
         """
         # add obstacle to environment
         if obst.type() == "urdf":
@@ -531,7 +531,7 @@ class UrdfEnv(gym.Env):
         Parameters
         ----------
 
-        goal: Goal from mpscenes
+        goal: Goal from dynfabrics.mpscenes
         """
         if isinstance(goal, GoalComposition):
             for sub_goal in goal.sub_goals():

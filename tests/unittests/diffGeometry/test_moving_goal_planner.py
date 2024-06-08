@@ -5,7 +5,7 @@ import numpy as np
 from dynfabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
 from dynfabrics.diffGeometry.geometry import Geometry
 
-from forwardkinematics.planarFks.planarArmFk import PlanarArmFk
+from dynfabrics.forwardkinematics.planarFks.planarArmFk import PlanarArmFk
 
 from dynfabrics.helpers.variables import Variables
 

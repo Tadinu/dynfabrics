@@ -7,13 +7,14 @@ import casadi as ca
 import deprecation
 import numpy as np
 
-from forwardkinematics.fksCommon.fk import ForwardKinematics
-from forwardkinematics.urdfFks.urdfFk import LinkNotInURDFError
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.goals.sub_goal import SubGoal
+from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
+from dynfabrics.forwardkinematics import LinkDescriptionNotFoundError
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.goals.sub_goal import SubGoal
 from pyquaternion import Quaternion
 
 from dynfabrics import __version__
+from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
 from dynfabrics.components.energies.execution_energies import ExecutionLagrangian
 from dynfabrics.components.leaves.attractor import GenericAttractor
 from dynfabrics.components.leaves.dynamic_attractor import GenericDynamicAttractor
@@ -259,11 +260,19 @@ class ParameterizedFabricPlanner(object):
         if isinstance(link_name, ca.SX):
             return link_name
 
-        fk = self._forward_kinematics.casadi(
-            self._variables.position_variable(),
-            link_name,
-            position_only=position_only
-        )
+        if self._forward_kinematics._desc.endswith(".urdf"):
+            fk = self._forward_kinematics.casadi(
+                self._variables.position_variable(),
+                parent_link=self._forward_kinematics._root_link,
+                child_link=link_name,
+                position_only=True
+            )
+        else:
+            fk = self._forward_kinematics.casadi(
+                self._variables.position_variable(),
+                child_link=link_name,
+                position_only=True
+            )
         return fk
 
     def add_capsule_sphere_geometry(
@@ -640,7 +649,7 @@ class ParameterizedFabricPlanner(object):
             fk_child = self.get_forward_kinematics(sub_goal.child_link())
             try:
                 fk_parent = self.get_forward_kinematics(sub_goal.parent_link())
-            except LinkNotInURDFError as e:
+            except LinkDescriptionNotFoundError as e:
                 fk_parent = ca.SX(np.zeros(3))
             angles = sub_goal.angle()
 

@@ -2,11 +2,12 @@ from typing import Union
 import numpy as np
 import casadi as ca
 
-class ForwardKinematics():
 
+class ForwardKinematics():
     """Abstract class for forward kinematics"""
 
     _n: int
+    _desc: str = ""
 
     def __init__(self):
         pass
@@ -23,7 +24,7 @@ class ForwardKinematics():
             parent_link: Union[int, str, None] = None,
             link_transformation=np.eye(4),
             position_only: bool = False
-        ) -> ca.SX:
+    ) -> ca.SX:
         raise NotImplementedError
 
     def numpy(
@@ -32,7 +33,5 @@ class ForwardKinematics():
             parent_link: Union[int, str, None] = None,
             link_transformation=np.eye(4),
             position_only: bool = False
-        ) -> np.ndarray:
+    ) -> np.ndarray:
         raise NotImplementedError
-
-

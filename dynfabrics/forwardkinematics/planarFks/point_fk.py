@@ -3,7 +3,7 @@ from typing import Union
 import numpy as np
 import casadi as ca
 
-from forwardkinematics.planarFks.planar_fk import ForwardKinematicsPlanar
+from dynfabrics.forwardkinematics.planarFks.planar_fk import ForwardKinematicsPlanar
 
 
 class PointFk(ForwardKinematicsPlanar):
@@ -12,12 +12,12 @@ class PointFk(ForwardKinematicsPlanar):
         self._n = 2
 
     def casadi(
-        self,
-        q: ca.SX,
-        child_link: Union[int, str],
-        parent_link: Union[int, str, None] = None,
-        link_transformation=np.eye(3),
-        position_only: bool = False,
+            self,
+            q: ca.SX,
+            child_link: Union[int, str],
+            parent_link: Union[int, str, None] = None,
+            link_transformation=np.eye(3),
+            position_only: bool = False,
     ):
         fk = ca.SX.eye(3)
         child_link = self.ensure_int_link(child_link)
@@ -35,12 +35,12 @@ class PointFk(ForwardKinematicsPlanar):
             return fk
 
     def numpy(
-        self,
-        q: np.ndarray,
-        child_link: Union[int, str],
-        parent_link: Union[int, str, None] = None,
-        link_transformation=np.eye(3),
-        position_only: bool = False,
+            self,
+            q: np.ndarray,
+            child_link: Union[int, str],
+            parent_link: Union[int, str, None] = None,
+            link_transformation=np.eye(3),
+            position_only: bool = False,
     ):
         fk = np.eye(3)
         child_link = self.ensure_int_link(child_link)

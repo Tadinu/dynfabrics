@@ -6,16 +6,16 @@ import gymnasium as gym
 import numpy as np
 from typing_extensions import List
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 from robotmodels.utils.robotmodel import RobotModel, LocalRobotModel
 
-from urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
-from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
-from urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.non_holonomic_parameterized_planner import NonHolonomicParameterizedFabricPlanner
 from generic_diffdrive_mujoco_robot import GenericDiffDriveMujocoRobot

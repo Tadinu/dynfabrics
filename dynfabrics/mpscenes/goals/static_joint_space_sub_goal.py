@@ -3,8 +3,8 @@ from dataclasses import dataclass
 import numpy as np
 from omegaconf import OmegaConf
 
-from mpscenes.goals.sub_goal import SubGoal, SubGoalConfig
-from mpscenes.common.errors import JointSpaceGoalsNotSupportedError
+from dynfabrics.mpscenes.goals.sub_goal import SubGoal, SubGoalConfig
+from dynfabrics.mpscenes.common.errors import JointSpaceGoalsNotSupportedError
 
 
 @dataclass

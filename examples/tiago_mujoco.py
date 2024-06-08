@@ -4,14 +4,14 @@ from copy import deepcopy
 import gymnasium as gym
 import numpy as np
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 from robotmodels.utils.robotmodel import RobotModel, LocalRobotModel
 
-from urdfenvs.sensors.full_sensor import FullSensor
-from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
 
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 from generic_diffdrive_mujoco_robot import GenericDiffDriveMujocoRobot

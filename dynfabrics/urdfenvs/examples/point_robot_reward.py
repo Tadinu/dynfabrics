@@ -1,25 +1,24 @@
 import numpy as np
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
-from urdfenvs.scene_examples.goal import goal1
-from urdfenvs.urdf_common.reward import Reward
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.scene_examples.goal import goal1
+from dynfabrics.urdfenvs.urdf_common.reward import Reward
 
-
-N_STEPS=1000
+N_STEPS = 1000
 
 
 class InverseDistanceDenseReward(Reward):
     def calculate_reward(self, observation: dict) -> float:
         goal = observation['robot_0']['FullSensor']['goals'][1]['position']
         position = observation['robot_0']['joint_state']['position']
-        return 1.0/np.linalg.norm(goal-position)
+        return 1.0 / np.linalg.norm(goal - position)
 
 
 robots = [
     GenericUrdfReacher(urdf="pointRobot.urdf", mode="vel"),
 ]
-env= UrdfEnv(
+env = UrdfEnv(
     dt=0.01,
     robots=robots,
     render=True,

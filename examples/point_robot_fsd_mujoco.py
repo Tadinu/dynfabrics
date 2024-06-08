@@ -6,20 +6,20 @@ import time
 import gymnasium as gym
 import numpy as np
 from typing_extensions import List, Union
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
-from forwardkinematics.xmlFks.generic_xml_fk import GenericXMLFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.xmlFks.generic_xml_fk import GenericXMLFk
 from robotmodels.utils.robotmodel import RobotModel, LocalRobotModel
 
-from urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
-from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
-from urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 
-from urdfenvs.sensors.free_space_decomposition import FreeSpaceDecompositionSensor
+from dynfabrics.urdfenvs.sensors.free_space_decomposition import FreeSpaceDecompositionSensor
 
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.obstacles.box_obstacle import BoxObstacle
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 

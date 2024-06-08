@@ -2,20 +2,20 @@ from copy import deepcopy
 import pdb
 import gymnasium as gym
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 from robotmodels.utils.robotmodel import RobotModel, LocalRobotModel
 
-from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
-from urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.urdf_common.helpers import add_shape as urdf_env_add_shape
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.urdf_common.helpers import add_shape as urdf_env_add_shape
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 import os
 
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
 import numpy as np
 import os

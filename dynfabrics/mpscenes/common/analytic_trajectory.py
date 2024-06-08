@@ -1,7 +1,7 @@
 import numpy as np
 import sympy as sp
 
-from mpscenes.common.reference_trajectory import ReferenceTrajectory, t
+from dynfabrics.mpscenes.common.reference_trajectory import ReferenceTrajectory, t
 
 
 def evaluate_component(expression, evaluation_time: float):

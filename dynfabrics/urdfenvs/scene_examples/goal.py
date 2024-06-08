@@ -1,6 +1,6 @@
-from mpscenes.goals.static_sub_goal import StaticSubGoal
-from mpscenes.goals.dynamic_sub_goal import DynamicSubGoal
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.goals.static_sub_goal import StaticSubGoal
+from dynfabrics.mpscenes.goals.dynamic_sub_goal import DynamicSubGoal
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 goal1Dict = {
     "weight": 1.0,

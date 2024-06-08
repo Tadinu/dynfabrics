@@ -1,20 +1,21 @@
-from urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
+from dynfabrics.urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
 import numpy as np
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+
 
 def run_tiago(n_steps=1000, render=False, goal=True, obstacles=True):
     torso_joint_name = ["torso_lift_joint"]
     head_joint_names = ["head_" + str(i) + "_joint" for i in range(1, 3)]
     arm_right_joint_names = ["arm_right_" + str(i) +
-                                "_joint" for i in range(1, 8)]
+                             "_joint" for i in range(1, 8)]
     arm_left_joint_names = ["arm_left_" + str(i) +
-                                "_joint" for i in range(1, 8)]
+                            "_joint" for i in range(1, 8)]
     actuated_joints = (
-        torso_joint_name
-        + head_joint_names
-        + arm_left_joint_names
-        + arm_right_joint_names
+            torso_joint_name
+            + head_joint_names
+            + arm_left_joint_names
+            + arm_right_joint_names
     )
 
     robots = [
@@ -32,9 +33,9 @@ def run_tiago(n_steps=1000, render=False, goal=True, obstacles=True):
                 "suspension_right_joint",
                 "suspension_left_joint",
             ],
-            wheel_radius = 0.1,
-            wheel_distance = 0.4044,
-            spawn_offset = np.array([-0.1764081, 0.0, 0.1]),
+            wheel_radius=0.1,
+            wheel_distance=0.4044,
+            spawn_offset=np.array([-0.1764081, 0.0, 0.1]),
         ),
     ]
     env: UrdfEnv = UrdfEnv(
@@ -42,9 +43,9 @@ def run_tiago(n_steps=1000, render=False, goal=True, obstacles=True):
     )
     action = np.zeros(env.n())
     action[0:2] = np.array([0.2, 0.02])
-    action[5] = 0.0 # left arm shoulder
-    action[14] = 0.0 # right arm shoulder
-    action[22] = 0.01 # finger joint
+    action[5] = 0.0  # left arm shoulder
+    action[14] = 0.0  # right arm shoulder
+    action[22] = 0.01  # finger joint
     vel0 = np.zeros(env.n())
     ob, *_ = env.reset()
     print("base: ", ob['robot_0']["joint_state"]["position"][0:3])

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Any
 
-from mpscenes.obstacles.collision_obstacle import CollisionObstacle
-from mpscenes.common.errors import MissmatchDimensionError, TrajectoryNotSupported
-from mpscenes.common.analytic_trajectory import AnalyticTrajectory
-from mpscenes.common.spline_trajectory import SplineTrajectory
+from dynfabrics.mpscenes.obstacles.collision_obstacle import CollisionObstacle
+from dynfabrics.mpscenes.common.errors import MissmatchDimensionError, TrajectoryNotSupported
+from dynfabrics.mpscenes.common.analytic_trajectory import AnalyticTrajectory
+from dynfabrics.mpscenes.common.spline_trajectory import SplineTrajectory
 
 
 @dataclass

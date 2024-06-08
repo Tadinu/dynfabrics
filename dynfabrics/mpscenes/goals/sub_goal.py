@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import List
 from abc import abstractmethod
 
-from mpscenes.common.component import MPComponent
-from mpscenes.common.errors import MissmatchDimensionError
+from dynfabrics.mpscenes.common.component import MPComponent
+from dynfabrics.mpscenes.common.errors import MissmatchDimensionError
 
 
 @dataclass

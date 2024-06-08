@@ -1,10 +1,10 @@
 from .collision_obstacle import *
-from mpscenes.obstacles.box_obstacle import *
+from dynfabrics.mpscenes.obstacles.box_obstacle import *
 from .sphere_obstacle import *
 from .cylinder_obstacle import *
 from .urdf_obstacle import *
 from .dynamic_obstacle import *
-from mpscenes.obstacles.dynamic_box_obstacle import *
+from dynfabrics.mpscenes.obstacles.dynamic_box_obstacle import *
 from .dynamic_urdf_obstacle import *
 from .dynamic_sphere_obstacle import *
 from .dynamic_cylinder_obstacle import *
@@ -22,4 +22,3 @@ __all__ = [
     "DynamicSphereObstacleConfig", "DynamicCylinderObstacle",
     "DynamicCylinderGeometryConfig", "DynamicCylinderObstacleConfig",
 ]
-

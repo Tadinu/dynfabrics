@@ -1,9 +1,9 @@
 import numpy as np
 
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.obstacle_sensor import ObstacleSensor
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.scene_examples.obstacles import (
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.obstacle_sensor import ObstacleSensor
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.scene_examples.obstacles import (
     sphereObst1,
     urdfObst1,
     dynamicSphereObst3,

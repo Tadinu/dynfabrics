@@ -1,8 +1,8 @@
 import warnings
 import gymnasium as gym
 import numpy as np
-from urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
 
 
 def run_albert(n_steps=1000, render=False, goal=True, obstacles=True):
@@ -12,10 +12,10 @@ def run_albert(n_steps=1000, render=False, goal=True, obstacles=True):
             mode="vel",
             actuated_wheels=["wheel_right_joint", "wheel_left_joint"],
             castor_wheels=["rotacastor_right_joint", "rotacastor_left_joint"],
-            wheel_radius = 0.08,
-            wheel_distance = 0.494,
-            spawn_rotation = 0,
-            facing_direction = '-y',
+            wheel_radius=0.08,
+            wheel_distance=0.494,
+            spawn_rotation=0,
+            facing_direction='-y',
         ),
     ]
     env: UrdfEnv = UrdfEnv(
