@@ -4,14 +4,14 @@ import numpy as np
 import quaternionic
 from typing import Tuple
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.box_obstacle import BoxObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
@@ -84,7 +84,7 @@ def initalize_environment(render=True, obstacle_resolution=8):
             "child_link": "panda_hand",
             "desired_position": whole_position,
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
         "subgoal1": {
             "weight": 3.0,
@@ -95,7 +95,7 @@ def initalize_environment(render=True, obstacle_resolution=8):
             "desired_position": [0.107, 0.0, 0.0],
             "angle": goal_orientation,
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
@@ -155,7 +155,7 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7, obstacle_res
     planner.set_components(
         collision_links=COLLISION_LINKS,
         goal=goal,
-        number_obstacles=0,
+        number_obstacles_sphere=0,
         number_obstacles_cuboid=obstacle_resolution,
         limits=panda_limits,
     )

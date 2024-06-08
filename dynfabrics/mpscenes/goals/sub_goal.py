@@ -1,9 +1,18 @@
 from dataclasses import dataclass
 from typing import List
+from enum import Enum
 from abc import abstractmethod
 
-from mpscenes.common.component import MPComponent
-from mpscenes.common.errors import MissmatchDimensionError
+import numpy as np
+
+from dynfabrics.mpscenes.common.component import MPComponent
+from dynfabrics.mpscenes.common.errors import MissmatchDimensionError
+
+
+class SubGoalType(Enum):
+    STATIC = 0  # Note: This does not necessarily means fixed or stationary!
+    ANALYTIC = 1
+    SPLINE = 2
 
 
 @dataclass
@@ -26,7 +35,7 @@ class SubGoalConfig:
     """
 
     weight: float
-    type: str
+    type: SubGoalType
     indices: List[int]
     epsilon: float
     is_primary_goal: bool
@@ -34,48 +43,49 @@ class SubGoalConfig:
 
 class SubGoal(MPComponent):
     def check_dimensionality(self):
-        if isinstance(self.position(), str):
+        if isinstance(self.pose(), str):
             return
-        if len(self.indices()) != len(self.position()):
-            raise MissmatchDimensionError(
-                "SubGoal: Dimension mismatch between goal and indices"
-            )
 
     def is_primary_goal(self):
         return self._config.is_primary_goal
 
-    def epsilon(self):
+    def epsilon(self) -> float:
         return self._config.epsilon
 
-    def indices(self):
+    def indices(self) -> List[int]:
         return self._config.indices
 
-    def dimension(self):
+    def dimension(self) -> int:
         return len(self.indices())
 
-    def weight(self):
+    def weight(self) -> float:
         return self._config.weight
 
-    def type(self):
+    def type(self) -> SubGoalType:
         return self._config.type
 
     def evaluate(self, **kwargs) -> list:
         return [
-            self.position(**kwargs),
+            self.pose(**kwargs),
             self.velocity(**kwargs),
             self.acceleration(**kwargs)
         ]
 
+    def position(self, **kwargs) -> np.ndarray:
+        return np.zeros(3)
+
+    def orientation(self, **kwargs) -> np.ndarray:
+        return np.array([1, 0, 0, 0])
+
+    def pose(self, **kwargs) -> np.ndarray:
+        return np.eye(4)
+
     @abstractmethod
-    def position(self, **kwargs):
+    def velocity(self, **kwargs) -> np.ndarray:
         pass
 
     @abstractmethod
-    def velocity(self, **kwargs):
-        pass
-
-    @abstractmethod
-    def acceleration(self, **kwargs):
+    def acceleration(self, **kwargs) -> np.ndarray:
         pass
 
     @abstractmethod

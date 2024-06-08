@@ -1,13 +1,13 @@
 import os
 import gymnasium as gym
 import numpy as np
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
@@ -62,7 +62,7 @@ def initalize_environment(render=True, nr_obst: int = 0):
             "child_link": "iiwa_link_ee",
             "desired_position": [-0.24355761, -0.75252747, 0.5],
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
         "subgoal1": {
             "weight": 10.,
@@ -72,7 +72,7 @@ def initalize_environment(render=True, nr_obst: int = 0):
             "child_link": "iiwa_link_ee_x",
             "desired_position": [0.045, 0., 0.],
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
         "subgoal2": {
             "weight": 10.,
@@ -82,7 +82,7 @@ def initalize_environment(render=True, nr_obst: int = 0):
             "child_link": "iiwa_link_ee",
             "desired_position": [0.0, 0.0, 0.045],
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
 
     }
@@ -148,7 +148,7 @@ def set_planner(goal: GoalComposition, nr_obst: int = 0, degrees_of_freedom: int
     planner.set_components(
         collision_links=collision_links,
         goal=goal,
-        number_obstacles=nr_obst,
+        number_obstacles_sphere=nr_obst,
         number_plane_constraints=1,
         limits=iiwa_limits,
     )
@@ -201,11 +201,7 @@ def run_kuka_example(n_steps=5000, render=True):
 
         # check if the orientation is correctly reached:
         if w % 100 == 0:
-            pose_ee = planner._forward_kinematics.numpy(
-                q,
-                parent_link='iiwa_link_0',
-                child_link='iiwa_link_ee',
-            )
+            pose_ee = planner._adam_kindyn('iiwa_link_ee', ca.SX.eye(4), q)
             rotation_distance = np.linalg.norm(pose_ee[0:3, 0:3] - rot_matrix)
             print("Distance in naive matrix norm:", rotation_distance)
     env.close()

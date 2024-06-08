@@ -1,17 +1,17 @@
 import gymnasium as gym
 from pynput import keyboard
 from typing import List
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
-from mpscenes.obstacles.collision_obstacle import CollisionObstacle
-from mpscenes.obstacles.box_obstacle import BoxObstacle
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.mpscenes.obstacles.collision_obstacle import CollisionObstacle
+from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 import os
 import quaternionic
 
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
 import numpy as np
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
@@ -83,7 +83,7 @@ def create_dummy_goal() -> GoalComposition:
             "child_link": "panda_hand",
             "desired_position": whole_position,
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
         "subgoal1": {
             "weight": 3.0,
@@ -93,7 +93,7 @@ def create_dummy_goal() -> GoalComposition:
             "child_link": "panda_hand",
             "desired_position": goal_1.tolist(),
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
         "subgoal2": {
             "weight": 3.0,
@@ -177,8 +177,8 @@ def set_planner(degrees_of_freedom: int = 7):
     planner.set_components(
         collision_links=collision_links,
         goal=goal,
-        number_obstacles=0,
-        number_dynamic_obstacles=len(collision_links),
+        number_obstacles_sphere=0,
+        number_dynamic_obstacles_sphere=len(collision_links),
         limits=panda_limits,
     )
     planner.concretize(mode='vel', time_step=0.01)

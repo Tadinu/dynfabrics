@@ -1,6 +1,6 @@
 import gymnasium as gym
 import numpy as np
-from urdfenvs.scene_examples.obstacles import (
+from dynfabrics.urdfenvs.scene_examples.obstacles import (
     sphereObst1,
     sphereObst2,
     urdfObst1,
@@ -8,13 +8,13 @@ from urdfenvs.scene_examples.obstacles import (
     wall_obstacles,
 )
 
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.lidar import Lidar
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.lidar import Lidar
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
 
 
 def run_point_robot_with_lidar(
-    n_steps=1000, render=False, obstacles=True, goal=True
+        n_steps=1000, render=False, obstacles=True, goal=True
 ):
     robots = [
         GenericUrdfReacher(urdf="pointRobot.urdf", mode="vel"),
@@ -42,7 +42,7 @@ def run_point_robot_with_lidar(
     for _ in range(n_steps):
         ob, *_ = env.step(action)
         # Access the lidar observation
-        #_ = ob["robot_0"]["LidarSensor"]
+        # _ = ob["robot_0"]["LidarSensor"]
 
         history.append(ob)
     env.close()

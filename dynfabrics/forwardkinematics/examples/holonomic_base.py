@@ -1,10 +1,10 @@
 import os
 import casadi as ca
 import numpy as np
-from forwardkinematics import GenericURDFFk
+from dynfabrics.forwardkinematics import GenericURDFFk
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
-URDF_FILE=absolute_path + "/assets/pointRobot.urdf"
+URDF_FILE = absolute_path + "/assets/pointRobot.urdf"
 
 
 def main():
@@ -12,7 +12,7 @@ def main():
         urdf = file.read()
     fk_point_robot = GenericURDFFk(
         urdf,
-        root_link = 'origin',
+        root_link='origin',
         end_links="base_link",
     )
     dof = fk_point_robot.n()
@@ -21,6 +21,7 @@ def main():
     fk_casadi = fk_point_robot.casadi(q_ca, 'base_link', position_only=True)
     fk_numpy = fk_point_robot.numpy(q_np, 'base_link', position_only=True)
     return fk_casadi, fk_numpy
+
 
 if __name__ == "__main__":
     fk_casadi, fk_numpy = main()

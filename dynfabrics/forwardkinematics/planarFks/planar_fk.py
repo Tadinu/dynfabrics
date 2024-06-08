@@ -4,10 +4,12 @@ import re
 import numpy as np
 import casadi as ca
 
-from forwardkinematics.fksCommon.fk import ForwardKinematics
+from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
+
 
 class NoLinkIndexFoundInLinkNameError(Exception):
     pass
+
 
 class ForwardKinematicsPlanar(ForwardKinematics):
 
@@ -30,7 +32,7 @@ class ForwardKinematicsPlanar(ForwardKinematics):
             parent_link: Union[int, str, None] = None,
             link_transformation=np.eye(3),
             position_only: bool = False
-        ) -> ca.SX:
+    ) -> ca.SX:
         raise NotImplementedError
 
     def numpy(
@@ -39,5 +41,5 @@ class ForwardKinematicsPlanar(ForwardKinematics):
             parent_link: Union[int, str, None] = None,
             link_transformation=np.eye(3),
             position_only: bool = False
-        ) -> np.ndarray:
+    ) -> np.ndarray:
         raise NotImplementedError

@@ -3,10 +3,10 @@ import numpy as np
 import os
 import yaml
 
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
-from forwardkinematics.planarFks.point_fk import PointFk
+from dynfabrics.forwardkinematics.planarFks.point_fk import PointFk
 
 
 def test_creation():
@@ -31,7 +31,7 @@ def goal():
             "child_link": 2,
             "desired_position": [-4.0, 1.0],
             "epsilon": 0.15,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)

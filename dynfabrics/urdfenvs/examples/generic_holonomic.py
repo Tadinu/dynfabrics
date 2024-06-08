@@ -1,8 +1,9 @@
 import os
 import numpy as np
 
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+
 
 def run_generic_holonomic(n_steps=1000, render=False, goal=True, obstacles=True):
     urdf_file = os.path.dirname(os.path.abspath(__file__)) + "/ur5.urdf"
@@ -21,15 +22,15 @@ def run_generic_holonomic(n_steps=1000, render=False, goal=True, obstacles=True)
     ob = env.reset(pos=pos0, mount_positions=mount_positions, mount_orientations=mount_orientations)
     print(f"Initial observation : {ob}")
     if goal:
-        from urdfenvs.scene_examples.goal import dynamicGoal
+        from dynfabrics.urdfenvs.scene_examples.goal import dynamicGoal
         env.add_goal(dynamicGoal)
 
     if obstacles:
-        from urdfenvs.scene_examples.obstacles import dynamicSphereObst2
+        from dynfabrics.urdfenvs.scene_examples.obstacles import dynamicSphereObst2
         env.add_goal(dynamicGoal)
 
     if obstacles:
-        from urdfenvs.scene_examples.obstacles import dynamicSphereObst2
+        from dynfabrics.urdfenvs.scene_examples.obstacles import dynamicSphereObst2
 
         env.add_obstacle(dynamicSphereObst2)
     print("Starting episode")

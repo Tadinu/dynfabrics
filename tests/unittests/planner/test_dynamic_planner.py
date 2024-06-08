@@ -1,11 +1,11 @@
 import pytest
 import numpy as np
 
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
-from forwardkinematics.planarFks.point_fk import PointFk
+from dynfabrics.forwardkinematics.planarFks.point_fk import PointFk
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def goal():
             "child_link": 2,
             "trajectory": ["-4.0", "1.0"],
             "epsilon": 0.15,
-            "type": "analyticSubGoal",
+            "type": SubGoalType.ANALYTIC,
         }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)

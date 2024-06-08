@@ -4,8 +4,8 @@ import os
 import numpy as np
 from omegaconf import OmegaConf
 
-from mpscenes.obstacles.collision_obstacle import CollisionObstacle, CollisionObstacleConfig, GeometryConfig
-from mpscenes.common.errors import DimensionNotSuitableForEnv
+from dynfabrics.mpscenes.obstacles.collision_obstacle import CollisionObstacle, CollisionObstacleConfig, GeometryConfig
+from dynfabrics.mpscenes.common.errors import DimensionNotSuitableForEnv
 
 
 @dataclass
@@ -109,7 +109,7 @@ class CylinderObstacle(CollisionObstacle):
             self.limit_low()[2], self.limit_high()[2], 1
         )
         self._config.geometry.position = random_pos.tolist()
-        self._config.geometry.radius= float(random_radius[0])
+        self._config.geometry.radius = float(random_radius[0])
         self._config.geometry.height = float(random_height[0])
 
     def movable(self):
@@ -119,14 +119,14 @@ class CylinderObstacle(CollisionObstacle):
         pass
 
     def distance(self, position: np.ndarray, **kwargs) -> float:
-        pos = self.position_into_obstacle_frame(position, **kwargs)
+        pos = self.point_into_obstacle_frame(position, **kwargs)
         if len(pos.shape) > 1:
-            pos[2, :] += self.size()[1]/2
+            pos[2, :] += self.size()[1] / 2
             norm_pos_2 = np.linalg.norm(pos[0:2, :], axis=0)
             abs_val = np.absolute(np.stack((norm_pos_2, pos[2, :])))
             d = np.transpose(np.subtract(np.transpose(abs_val), np.array(self.size())))
             return np.minimum(np.maximum(d[0, :], d[1, :]), 0.0) + np.linalg.norm(np.maximum(d, 0.0), axis=0)
         else:
-            pos[2] += self.size()[1]/2
+            pos[2] += self.size()[1] / 2
             d = np.absolute(np.array([np.linalg.norm(pos[0:2]), pos[2]])) - np.array(self.size())
             return np.minimum(np.maximum(d[0], d[1]), 0.0) + np.linalg.norm(np.maximum(d, 0.0))

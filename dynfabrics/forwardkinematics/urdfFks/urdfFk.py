@@ -3,8 +3,8 @@ from typing import List, Union
 import casadi as ca
 import numpy as np
 
-import forwardkinematics.urdfFks.casadiConversion.urdfparser as u2c
-from forwardkinematics.fksCommon.fk import ForwardKinematics
+import dynfabrics.forwardkinematics.urdfFks.casadiConversion.urdf_parser as u2c
+from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
 
 
 class LinkNotInURDFError(Exception):
@@ -13,14 +13,15 @@ class LinkNotInURDFError(Exception):
 
 class URDFForwardKinematics(ForwardKinematics):
     def __init__(
-        self,
-        urdf: str,
-        root_link: str,
-        end_links: List[str],
-        base_type: str = "holonomic",
+            self,
+            urdf: str,
+            root_link: str,
+            end_links: List[str],
+            base_type: str = "holonomic",
     ):
         super().__init__()
         self._urdf = urdf
+        self._desc = urdf
         self._root_link = root_link
         self._end_links = end_links
         self._base_type = base_type
@@ -56,13 +57,13 @@ class URDFForwardKinematics(ForwardKinematics):
             self._fks[link] = ca_fun
 
     def casadi(
-        self,
-        q: ca.SX,
-        child_link: str,
-        parent_link: Union[str, None] = None,
-        link_transformation=np.eye(4),
-        position_only=False,
-        symbolic_parameters=None,
+            self,
+            q: ca.SX,
+            child_link: str,
+            parent_link: Union[str, None] = None,
+            link_transformation=np.eye(4),
+            position_only=False,
+            symbolic_parameters=None,
     ):
         if symbolic_parameters is None:
             symbolic_parameters = {}
@@ -99,12 +100,12 @@ class URDFForwardKinematics(ForwardKinematics):
         return fk
 
     def numpy(
-        self,
-        q: ca.SX,
-        child_link: str,
-        parent_link: Union[str, None] = None,
-        link_transformation=np.eye(4),
-        position_only=False,
+            self,
+            q: ca.SX,
+            child_link: str,
+            parent_link: Union[str, None] = None,
+            link_transformation=np.eye(4),
+            position_only=False,
     ):
         if child_link not in self._fks and child_link != self._root_link:
             raise LinkNotInURDFError(

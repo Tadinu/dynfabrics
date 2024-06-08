@@ -4,14 +4,14 @@ import os
 import logging
 import numpy as np
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
@@ -45,7 +45,7 @@ def initalize_environment(render=True):
             "child_link": "panda_hand",
             "trajectory": ["0.5 + 0.1 * sp.cos(0.2 * t)", "-0.6 * sp.sin(0.2 * t)", "0.4"],
             "epsilon": 0.02,
-            "type": "analyticSubGoal",
+            "type": SubGoalType.ANALYTIC,
         },
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
@@ -93,7 +93,7 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7):
     planner.set_components(
         collision_links=collision_links,
         goal=goal,
-        number_obstacles=0,
+        number_obstacles_sphere=0,
     )
     planner.concretize()
     return planner

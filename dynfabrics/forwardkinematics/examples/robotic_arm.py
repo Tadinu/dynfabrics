@@ -1,17 +1,18 @@
 import os
 import casadi as ca
 import numpy as np
-from forwardkinematics import GenericURDFFk
+from dynfabrics.forwardkinematics import GenericURDFFk
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
-URDF_FILE=absolute_path + "/assets/panda.urdf"
+URDF_FILE = absolute_path + "/assets/panda.urdf"
+
 
 def main():
     with open(URDF_FILE, "r") as file:
         urdf = file.read()
     fk_panda = GenericURDFFk(
         urdf,
-        root_link = 'panda_link0',
+        root_link='panda_link0',
         end_links="panda_leftfinger",
     )
     dof = fk_panda.n()

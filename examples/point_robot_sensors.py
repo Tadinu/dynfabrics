@@ -4,15 +4,15 @@ import os
 import gymnasium as gym
 import numpy as np
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
-from urdfenvs.sensors.lidar import Lidar
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.sensors.lidar import Lidar
 
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
@@ -33,7 +33,7 @@ def get_goal_sensors():
             "child_link": 'base_link',
             "desired_position": [3.5, 0.5],
             "epsilon": 0.1,
-            "type": "staticSubGoal"
+            "type": SubGoalType.STATIC
         }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
@@ -138,7 +138,7 @@ def set_planner(goal: GoalComposition):
     planner.set_components(
         goal=goal,
         collision_links=collision_links,
-        number_obstacles=NUMBER_OF_RAYS,
+        number_obstacles_sphere=NUMBER_OF_RAYS,
     )
     planner.concretize()
     return planner

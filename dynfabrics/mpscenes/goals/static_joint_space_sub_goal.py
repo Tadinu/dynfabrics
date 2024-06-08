@@ -3,8 +3,8 @@ from dataclasses import dataclass
 import numpy as np
 from omegaconf import OmegaConf
 
-from mpscenes.goals.sub_goal import SubGoal, SubGoalConfig
-from mpscenes.common.errors import JointSpaceGoalsNotSupportedError
+from dynfabrics.mpscenes.goals.sub_goal import SubGoal, SubGoalConfig
+from dynfabrics.mpscenes.common.errors import JointSpaceGoalsNotSupportedError
 
 
 @dataclass
@@ -17,12 +17,12 @@ class StaticJointSpaceSubGoalConfig(SubGoalConfig):
     Parameters:
     ------------
 
-    desired_position : list : Goal configuration of the robot
+    desired_q : list : Goal configuration of the robot
     low : list : Lower limit for randomization
     high : list : Upper limit for randomization
     """
 
-    desired_position: List[float]
+    desired_q: List[float]
     low: Optional[List[float]] = None
     high: Optional[List[float]] = None
 
@@ -51,8 +51,11 @@ class StaticJointSpaceSubGoal(SubGoal):
     def evaluate(self, **kwargs):
         pass
 
+    def pose(self, **kwargs):
+        return np.eye(4)
+
     def position(self, **kwargs):
-        return self._config.desired_position
+        return self._config.desired_q
 
     def velocity(self, **kwargs):
         return np.zeros(self.dimension())

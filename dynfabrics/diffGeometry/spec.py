@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from dynfabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
 from dynfabrics.helpers.constants import eps
-from dynfabrics.helpers.functions import checkCompatability
+from dynfabrics.helpers.functions import checkCompatability, is_sparse
 
 from dynfabrics.helpers.casadiFunctionWrapper import CasadiFunctionWrapper
 from dynfabrics.helpers.variables import Variables
@@ -149,12 +149,14 @@ class Spec:
         #    print("sparsity", i, xdot[i].sparsity(), dm_phidot[i].sparsity())
         #    print("dm_phidot", i, dm_phidot[i].is_scalar(), "nnz: ", dm_phidot[i].nnz())
 
+        dm_phidot = dm.phidot()
+        phidot = ca.project(dm_phidot, xdot.sparsity()) if is_sparse(dm_phidot) else dm_phidot
         M_pulled_subst_x_xdot = ca.substitute(
-            M_pulled_subst_x, xdot, dm.phidot()
+            M_pulled_subst_x, xdot, phidot
         )
         f_pulled_subst_x = ca.substitute(f_pulled, x, dm._phi)
         f_pulled_subst_x_xdot = ca.substitute(
-            f_pulled_subst_x, xdot, dm.phidot()
+            f_pulled_subst_x, xdot, phidot
         )
         new_state_variables = dm.state_variables()
         new_parameters = {}

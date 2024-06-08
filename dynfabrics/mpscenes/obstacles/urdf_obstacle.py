@@ -3,8 +3,8 @@ from typing import List, Optional
 import numpy as np
 from omegaconf import OmegaConf
 
-from mpscenes.obstacles.collision_obstacle import CollisionObstacle, CollisionObstacleConfig, GeometryConfig
-from mpscenes.common.errors import NoDistanceFunctionForURDFObstacle, DimensionNotSuitableForEnv
+from dynfabrics.mpscenes.obstacles.collision_obstacle import CollisionObstacle, CollisionObstacleConfig, GeometryConfig
+from dynfabrics.mpscenes.common.errors import NoDistanceFunctionForURDFObstacle, DimensionNotSuitableForEnv
 
 
 @dataclass
@@ -66,4 +66,3 @@ class UrdfObstacle(CollisionObstacle):
 
     def distance(self, position: np.ndarray) -> None:
         raise NoDistanceFunctionForURDFObstacle("Cannot compute distance for urdf-obstacle.")
-

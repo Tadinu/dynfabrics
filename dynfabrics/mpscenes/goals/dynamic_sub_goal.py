@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from typing import List, Optional, Any
 import numpy as np
 from omegaconf import OmegaConf
-from mpscenes.goals.sub_goal import SubGoal, SubGoalConfig
-from mpscenes.common.errors import DimensionNotSuitableForEnv, TrajectoryNotSupported
-from mpscenes.common.analytic_trajectory import AnalyticTrajectory
-from mpscenes.common.spline_trajectory import SplineTrajectory
+from dynfabrics.mpscenes.goals.sub_goal import SubGoal, SubGoalConfig
+from dynfabrics.mpscenes.common.errors import DimensionNotSuitableForEnv, TrajectoryNotSupported
+from dynfabrics.mpscenes.common.analytic_trajectory import AnalyticTrajectory
+from dynfabrics.mpscenes.common.spline_trajectory import SplineTrajectory
 
 
 @dataclass
@@ -83,7 +83,10 @@ class DynamicSubGoal(SubGoal):
     def dict(self):
         return OmegaConf.to_container(self._config)
 
-    def position(self, **kwargs) -> np.ndarray:
+    def pose(self, **kwargs) -> np.ndarray:
+        return self.evaluate_trajectory(**kwargs)[0]
+
+    def position(self, **kwargs):
         return self.evaluate_trajectory(**kwargs)[0]
 
     def velocity(self, **kwargs) -> np.ndarray:

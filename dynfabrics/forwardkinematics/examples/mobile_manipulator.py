@@ -1,10 +1,10 @@
 import os
 import casadi as ca
 import numpy as np
-from forwardkinematics import GenericURDFFk
+from dynfabrics.forwardkinematics import GenericURDFFk
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
-URDF_FILE=absolute_path + "/assets/albert.urdf"
+URDF_FILE = absolute_path + "/assets/albert.urdf"
 
 
 def main():
@@ -12,7 +12,7 @@ def main():
         urdf = file.read()
     fk_generic = GenericURDFFk(
         urdf,
-        root_link = 'base_link',
+        root_link='base_link',
         end_links="panda_ee",
         base_type='diffdrive',
     )

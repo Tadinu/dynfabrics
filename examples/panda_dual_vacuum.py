@@ -2,14 +2,14 @@ import os
 import gymnasium as gym
 import numpy as np
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 from dynfabrics.helpers.functions import get_rotation_matrix
@@ -64,7 +64,7 @@ def initalize_environment(render=True):
             "child_link": "vacuum1_link",
             "desired_position": [0.1, -0.6, 0.4],
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
         "subgoal1": {
             "weight": 5,
@@ -74,7 +74,7 @@ def initalize_environment(render=True):
             "child_link": "vacuum2_link",
             "desired_position": goal_1.tolist(),
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
         "subgoal2": {
             "weight": 5,
@@ -84,7 +84,7 @@ def initalize_environment(render=True):
             "child_link": "vacuum_support_link",
             "desired_position": goal_2.tolist(),
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
@@ -160,7 +160,7 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7):
     planner.set_components(
         collision_links=collision_links,
         goal=goal,
-        number_obstacles=0,
+        number_obstacles_sphere=0,
         number_plane_constraints=0,
         # limits=panda_limits,
     )

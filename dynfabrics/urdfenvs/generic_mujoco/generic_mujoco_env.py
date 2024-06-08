@@ -6,8 +6,8 @@ from typing import List, Optional, Union
 
 import gymnasium as gym
 from gymnasium import Env, utils
-import mujoco
-from dm_control import mjcf
+import mujoco as mj
+# from dm_control import mjcf
 from dynfabrics.urdfenvs.sensors.mujoco.lidar import LidarMujoco as Lidar
 from dynfabrics.urdfenvs.sensors.sensor import Sensor
 
@@ -18,8 +18,8 @@ from dynfabrics.urdfenvs.urdf_common.helpers import (
 
 from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
 from gymnasium.envs.mujoco.mujoco_rendering import MujocoRenderer
-from mpscenes.obstacles.collision_obstacle import CollisionObstacle
-from mpscenes.goals.sub_goal import SubGoal
+from dynfabrics.mpscenes.obstacles.collision_obstacle import CollisionObstacle
+from dynfabrics.mpscenes.goals.sub_goal import SubGoal
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": -1,
@@ -57,12 +57,14 @@ class GenericMujocoEnv(Env):
             height: int = DEFAULT_SIZE,
             camera_id: Optional[int] = None,
             camera_name: Optional[str] = None,
-            enforce_real_time: Optional[bool] = None,
+            enforce_real_time: Optional[bool] = False,
     ) -> None:
 
         utils.EzPickle.__init__(self)
         self._xml_file = robots[0].xml_file
         self._done: bool = False
+        self.joints_name_list: list[str] = []
+        self.joint_ids: list[int] = []
         self._obstacles = obstacles
         self._goals = goals
         if not sensors:
@@ -70,7 +72,6 @@ class GenericMujocoEnv(Env):
         else:
             self._sensors = sensors
         self._number_movable_obstacles = 0
-        self.add_scene()
         self._t = 0.0
 
         render_mode = render
@@ -91,9 +92,6 @@ class GenericMujocoEnv(Env):
         self._n_sub_steps = n_sub_steps
         self._initialize_simulation()
 
-        for sensor in self._sensors:
-            sensor.set_data(self.data)
-
         assert self.metadata["render_modes"] == [
             "human",
             "rgb_array",
@@ -107,8 +105,8 @@ class GenericMujocoEnv(Env):
         self.camera_id = camera_id
 
         self.mujoco_renderer = MujocoRenderer(
-            self.model,
-            self.data,
+            self.scene_model,
+            self.scene_data,
             DEFAULT_CAMERA_CONFIG,
             height=DEFAULT_SIZE,
             width=DEFAULT_SIZE,
@@ -161,34 +159,27 @@ class GenericMujocoEnv(Env):
         )
 
     def joint_limits(self) -> np.ndarray:
-        return self.model.jnt_range[: self.nq]
+        return self.scene_model.jnt_range[: self.nq]
 
     def actuator_limits(self) -> np.ndarray:
-        return self.model.actuator_ctrlrange
+        return self.scene_model.actuator_ctrlrange
 
     def velocity_limits(self) -> np.ndarray:
-        return self.model.actuator_ctrlrange
+        return self.scene_model.actuator_ctrlrange
 
-    def _initialize_simulation(
-            self,
-    ):
+    def _initialize_simulation(self):
+        self.model_spec = mj.MjSpec.from_file(self._xml_file)
+        self.robot_model = self.model_spec.compile()
+        self.add_scene()
+        self.scene_model = self.model_spec.compile()
+        self.scene_model.body_pos[0] = [0, 1, 1]
+        self.scene_model.vis.global_.offwidth = self.width
+        self.scene_model.vis.global_.offheight = self.height
+        self.scene_model.opt.timestep = self._dt / self._n_sub_steps
+        self.scene_data = mj.MjData(self.scene_model)
 
-        if sys.platform.startswith('win'):
-            file_name = self._xml_file.split("\\")[-1]
-        else:
-            file_name = self._xml_file.split("/")[-1]
-        mjcf.export_with_assets(
-            self._model_dm,
-            "xml_model",
-            out_file_name=file_name,
-        )
-        self.model = mujoco.MjModel.from_xml_path(f"xml_model/{file_name}")
-
-        self.model.body_pos[0] = [0, 1, 1]
-        self.model.vis.global_.offwidth = self.width
-        self.model.vis.global_.offheight = self.height
-        self.model.opt.timestep = self._dt / self._n_sub_steps
-        self.data = mujoco.MjData(self.model)
+        for sensor in self._sensors:
+            sensor.set_data(self.scene_data)
 
     @property
     def dt(self) -> float:
@@ -212,11 +203,11 @@ class GenericMujocoEnv(Env):
             obstacle for obstacle in self._obstacles if not obstacle.movable()
         ]
         for i, obstacle in enumerate(non_movable_obstacles):
-            self.data.mocap_pos[i] = obstacle.position(t=self.t)
+            self.scene_data.mocap_pos[i] = obstacle.position(t=self.t)
 
     def update_goals_position(self):
         for i, goal in enumerate(self._goals):
-            self.data.site_xpos[i] = goal.position(t=self.t)
+            self.scene_data.site_xpos[i] = goal.position(t=self.t)
 
     def step(self, action: np.ndarray):
         target_end_step_time = self._end_last_step_time + self.dt
@@ -230,9 +221,9 @@ class GenericMujocoEnv(Env):
             info = {"action_limits": f"{action} not in {self.action_space}"}
 
         self.do_simulation(action)
-        for contact in self.data.contact:
-            body1 = self.model.geom(contact.geom1).name
-            body2 = self.model.geom(contact.geom2).name
+        for contact in self.scene_data.contact:
+            body1 = self.scene_model.geom(contact.geom1).name
+            body2 = self.scene_model.geom(contact.geom2).name
             if "movable" in body1 or "movable" in body2:
                 continue
 
@@ -277,13 +268,11 @@ class GenericMujocoEnv(Env):
             info,
         )
 
-    def reset(
-            self,
-            seed: Optional[int] = None,
-            options: Optional[dict] = None,
-            pos: Optional[np.ndarray] = None,
-            vel: Optional[np.ndarray] = None,
-    ):
+    def reset(self,
+              seed: Optional[int] = None,
+              options: Optional[dict] = None,
+              pos: Optional[np.ndarray] = None,
+              vel: Optional[np.ndarray] = None):
         super().reset(seed=seed, options=options)
         if options and options.get("randomize_obstacles", False):
             for obstacle in self._obstacles:
@@ -306,44 +295,37 @@ class GenericMujocoEnv(Env):
 
     def set_state(self, qpos, qvel):
         assert qpos.shape == (self.nq,) and qvel.shape == (self.nv,)
-        self.data.qpos[: self.nq] = np.copy(qpos)
-        self.data.qvel[: self.nv] = np.copy(qvel)
-        if self.model.na == 0:
-            self.data.act[:] = None
-        mujoco.mj_forward(self.model, self.data)
+        self.scene_data.qpos[: self.nq] = np.copy(qpos)
+        self.scene_data.qvel[: self.nv] = np.copy(qvel)
+        if self.scene_model.na == 0:
+            self.scene_data.act[:] = None
+        mj.mj_forward(self.scene_model, self.scene_data)
 
     @property
     def nu(self) -> int:
-        return self.model.nu
+        return self.scene_model.nu
 
     @property
     def nq(self) -> int:
-        return self.model.nq - 7 * self._number_movable_obstacles
+        return self.scene_model.nq - 7 * self._number_movable_obstacles
 
     @property
     def nv(self) -> int:
-        return self.model.nv - 6 * self._number_movable_obstacles
+        return self.scene_model.nv - 6 * self._number_movable_obstacles
 
     def do_simulation(self, ctrl) -> None:
         # Check control input is contained in the action space
-        if np.array(ctrl).shape != (self.model.nu,):
+        if np.array(ctrl).shape != (self.scene_model.nu,):
             raise ValueError(
-                f"Action dimension mismatch. Expected {(self.model.nu,)}, found {np.array(ctrl).shape}"
+                f"Action dimension mismatch. Expected {(self.scene_model.nu,)}, found {np.array(ctrl).shape}"
             )
         self._step_mujoco_simulation(ctrl)
 
     def _step_mujoco_simulation(self, ctrl):
-        self.data.ctrl[:] = ctrl
-
-        mujoco.mj_step(self.model, self.data, nstep=self._n_sub_steps)
-
-        # As of MuJoCo 2.0, force-related quantities like cacc are not computed
-        # unless there's a force sensor in the model.
-        # See https://github.com/openai/gym/issues/1541
-        mujoco.mj_rnePostConstraint(self.model, self.data)
+        self.scene_data.ctrl[:] = ctrl
+        mj.mj_step(self.scene_model, self.scene_data, nstep=self._n_sub_steps)
 
     def add_scene(self) -> None:
-        self._model_dm = mjcf.from_path(self._xml_file)
         for obstacle in self._obstacles:
             self.add_obstacle(obstacle)
         for sub_goal in self._goals:
@@ -354,7 +336,7 @@ class GenericMujocoEnv(Env):
 
     def add_range_finder(self, sensor: Lidar) -> None:
         try:
-            lidar_body = self._model_dm.find("body", sensor._link_name)
+            lidar_body = self.scene_model.body(sensor._link_name)
         except Exception as e:
             print(e)
             raise LinkIdNotFoundError(
@@ -393,49 +375,38 @@ class GenericMujocoEnv(Env):
                 "site": f"{sensor.name()}_rf_{i}",
                 "cutoff": str(sensor._ray_length + 0.01 / 2),
             }
-            self._model_dm.sensor.add("rangefinder", **rangefinder_values)
+            self.model_spec.add_sensor(name=f"{sensor.name()}_{i}", site=f"{sensor.name()}_rf_{i}",
+                                       cutoff=str(sensor._ray_length + 0.01 / 2))
 
     def add_obstacle(self, obst: CollisionObstacle) -> None:
-        if obst.type() == "sphere":
-            size = str(obst.size()[0])
-        else:
-            size = " ".join([str(i / 2) for i in obst.size()])
-
-        geom_values = {
-            "name": obst.name(),
-            "type": obst.type(),
-            "rgba": " ".join([str(i) for i in obst.rgba()]),
-            "size": size,
-        }
-        obstacle_body = self._model_dm.worldbody.add(
-            "body",
+        obstacle_body = self.model_spec.worldbody.add_body(
             name=obst.name(),
             pos=obst.position().tolist(),
             mocap=not obst.movable(),
         )
         if obst.movable():
-            obstacle_body.add("freejoint", name=f"freejoint_{obst.name()}")
+            obstacle_body.add_freejoint(name=f"freejoint_{obst.name()}", align=True)
             self._number_movable_obstacles += 1
-        obstacle_body.add("geom", **geom_values)
+        obst_type = obst.type()
+        obstacle_body.add_geom(name=obst.name(),
+                               type=mj.mjtGeom.mjGEOM_SPHERE if obst_type == "sphere" else mj.mjtGeom.mjGEOM_BOX,
+                               rgba=obst.rgba(),
+                               size=obst.size())
 
     def add_sub_goal(self, sub_goal: SubGoal) -> None:
-        position = np.zeros(3)
-        for index in sub_goal.indices():
-            position[index] = sub_goal.position()[index]
-        geom_values = {
-            "name": sub_goal.name(),
-            "type": "sphere",
-            "rgba": "0 1 0 0.3",
-            "pos": " ".join([str(i) for i in position.tolist()]),
-            "size": str(sub_goal.epsilon()),
-        }
-        self._model_dm.worldbody.add("site", **geom_values)
+        position = np.array(sub_goal.position())
+        self.model_spec.worldbody.add_site(name=sub_goal.name(),
+                                           type=mj.mjtGeom.mjGEOM_SPHERE,
+                                           rgba=[0, 1, 0, 0.3],
+                                           pos=position,
+                                           quat=sub_goal.orientation(),
+                                           size=sub_goal.epsilon())
 
     def _get_obs(self):
         observation = {
             "joint_state": {
-                "position": self.data.qpos[0: self.nq],
-                "velocity": self.data.qvel[0: self.nv],
+                "position": self.scene_data.qpos[0: self.nq],
+                "velocity": self.scene_data.qvel[0: self.nv],
             }
         }
         for sensor in self._sensors:
@@ -460,4 +431,4 @@ class GenericMujocoEnv(Env):
         the updated model can be saved as an xml file.
 
         """
-        return self._model_dm.to_xml_string()
+        return self.model_spec.to_xml()

@@ -6,24 +6,18 @@ import logging
 import numpy as np
 from importlib import resources
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
-from robotmodels.utils.robotmodel import RobotModel, LocalRobotModel
+# from adam.casadi import KinDynComputations
 
-from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
-from urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
-
-from urdfenvs.sensors.full_sensor import FullSensor
-
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.obstacles.box_obstacle import BoxObstacle
-
+from dynfabrics.forwardkinematics.xmlFks.generic_xml_fk import GenericXMLFk
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
-WITH_GRIPPER = False
-ROBOTTYPE = 'panda'
-ROBOTMODEL = 'panda_with_gripper_mujoco' if WITH_GRIPPER else 'panda_without_gripper_mujoco'
-ROBOT_DOF = 9 if WITH_GRIPPER else 7
+from mjmanip.robot.panda_nohand import PANDA_DYNFABRICS_XML_PATH
 
 
 def initalize_environment(render=True):
@@ -33,32 +27,10 @@ def initalize_environment(render=True):
     Adds obstacles and goal visualizaion to the environment based and
     steps the simulation once.
     """
-    """
-    robots = [
-        GenericUrdfReacher(urdf="panda.urdf", mode="acc"),
-    ]
-    env: UrdfEnv  = gym.make(
-        "urdf-env-v0",
-        dt=0.01, robots=robots, render=render
-    ).unwrapped
-    """
-    """
-    if os.path.exists(ROBOTTYPE):
-        shutil.rmtree(ROBOTTYPE)
-    robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
-    robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
-    del robot_model
-    """
-    robot_model = LocalRobotModel(ROBOTTYPE, ROBOTMODEL)
 
     # xml_file = robot_model.get_xml_path()
-    xml_file = str(resources.path(robot_model.xml_package_name, f"{ROBOTMODEL}.xml"))
-    robots = [
-        GenericMujocoRobot(xml_file=xml_file),
-    ]
+    robots = [GenericMujocoRobot(xml_file=PANDA_DYNFABRICS_XML_PATH)]
     home_config = np.array([0, -1.57079, 0, 1.57079, -0.7853, 0.04, 0.04])
-    if WITH_GRIPPER:
-        home_config = np.append(home_config, + np.array([0, 0]))
 
     # Sensors
     full_sensor = FullSensor(
@@ -112,11 +84,11 @@ def initalize_environment(render=True):
             "weight": 0.4,
             "is_primary_goal": True,
             "indices": [0, 1, 2],
-            "parent_link": "panda_link0",
-            "child_link": "panda_leftfinger",
+            "parent_link": "link0",
+            "child_link": "attachment",
             "trajectory": ["0.1 * sp.cos(0.2 * t)", "-0.5 * sp.sin(0.2 * t)", "0.5 + -0.1 * sp.sin(0.2 * t)"],
             "epsilon": 0.02,
-            "type": "analyticSubGoal",
+            "type": SubGoalType.ANALYTIC,
         },
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
@@ -126,12 +98,12 @@ def initalize_environment(render=True):
                            height=960,
                            obstacles=obstacles,
                            render=render,
-                           enforce_real_time=False)
+                           enforce_real_time=True)
     env.reset(pos=home_config)
     return (env, goal, obstacles)
 
 
-def set_planner(goal: GoalComposition, degrees_of_freedom: int = ROBOT_DOF):
+def set_planner(env, goal: GoalComposition, obstacles, degrees_of_freedom: int = 7):
     """
     Initializes the fabric planner for the panda robot.
 
@@ -149,38 +121,26 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = ROBOT_DOF):
     degrees_of_freedom: int
         Degrees of freedom of the robot (default = 7)
     """
-    absolute_path = os.path.dirname(os.path.abspath(__file__))
-    with open(absolute_path + "/panda_for_fk.urdf", "r", encoding="utf-8") as file:
-        urdf = file.read()
-    forward_kinematics = GenericURDFFk(
-        urdf,
-        root_link="panda_link0",
-        end_links=["panda_leftfinger", "panda_rightfinger"]
-    )
+    joints_name_list = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'joint7']
+    env.joint_ids = [env.robot_model.joint(name).id for name in joints_name_list]
+    # kindyn = KinDynComputations(urdfstring=env.robot_model, joints_name_list=joints_name_list)
+    kindyn = GenericXMLFk(PANDA_DYNFABRICS_XML_PATH,
+                          root_link="link0", end_links=['attachment'])
     planner = ParameterizedFabricPlanner(
         degrees_of_freedom,
-        forward_kinematics,
+        kindyn
     )
     # The planner hides all the logic behind the function set_components.
-    collision_links = ['panda_link9', 'panda_link8', 'panda_link4']
+    collision_links = ["attachment"]
     self_collision_pairs = {}
     # No need to add limits for joint fingers regardless
-    panda_limits = [
-        [-2.8973, 2.8973],
-        [-1.7628, 1.7628],
-        [-2.8973, 2.8973],
-        [-3.0718, -0.0698],
-        [-2.8973, 2.8973],
-        [-0.0175, 3.7525],
-        [-2.8973, 2.8973]
-    ]
     planner.set_components(
         collision_links=collision_links,
         self_collision_pairs=self_collision_pairs,
         goal=goal,
-        number_obstacles=3,
+        number_obstacles_sphere=len(obstacles),
         number_plane_constraints=1,
-        limits=panda_limits
+        limits=env.robot_model.jnt_range[env.joint_ids].tolist(),
     )
     planner.concretize()
     return planner
@@ -188,10 +148,8 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = ROBOT_DOF):
 
 def run_panda_trajectory_example(n_steps=5000, render=True, dynamic_fabric: bool = True):
     (env, goal, obstacles) = initalize_environment(render)
-    planner = set_planner(goal)
-    action = np.zeros(ROBOT_DOF)
-    active_dof = ROBOT_DOF - 1 if WITH_GRIPPER else ROBOT_DOF
-    ob, *_ = env.step(action[0:active_dof])
+    planner = set_planner(env, goal, obstacles)
+    ob, *_ = env.step(np.zeros(len(env.joint_ids)))
 
     sub_goal_0_acceleration = np.zeros(3)
     logging.warning(f"Running example with dynamic fabrics? {dynamic_fabric}")
@@ -208,9 +166,7 @@ def run_panda_trajectory_example(n_steps=5000, render=True, dynamic_fabric: bool
             xdot_ref_goal_0_leaf=sub_goal_0_velocity,
             xddot_ref_goal_0_leaf=sub_goal_0_acceleration,
             weight_goal_0=ob_robot['FullSensor']['goals'][0]['weight'],
-            radius_body_panda_link9=0.02,
-            radius_body_panda_link8=0.02,
-            radius_body_panda_link4=0.02,
+            radius_body_attachment=0.01,
             radius_obst_0=obstacles[0].size()[0],
             x_obst_0=obstacles[0].position(),
             constraint_0=np.array([0.0, 0.0, 1.0, -0.1]),
@@ -220,15 +176,11 @@ def run_panda_trajectory_example(n_steps=5000, render=True, dynamic_fabric: bool
             x_obst_2=obstacles[2].position(),
         )
         print("ACTION", action)
-        ob, *_ = env.step(action[0:active_dof])
+        ob, *_ = env.step(action[env.joint_ids])
     env.close()
     return {}
 
 
 if __name__ == "__main__":
-    arguments = sys.argv
-    if len(arguments) == 1 or arguments[0] == 'dynamic_fabric':
-        dynamic_fabric = True
-    else:
-        dynamic_fabric = False
+    dynamic_fabric = True
     res = run_panda_trajectory_example(n_steps=5000, dynamic_fabric=dynamic_fabric)

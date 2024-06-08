@@ -2,9 +2,10 @@ from typing import List, Optional, Any
 from dataclasses import dataclass
 import numpy as np
 from omegaconf import OmegaConf
+from scipy.spatial.transform import Rotation
 
-from mpscenes.goals.sub_goal import SubGoal, SubGoalConfig
-from mpscenes.common.errors import DimensionNotSuitableForEnv
+from dynfabrics.mpscenes.goals.sub_goal import SubGoal, SubGoalConfig
+from dynfabrics.mpscenes.common.errors import DimensionNotSuitableForEnv
 
 
 @dataclass
@@ -22,7 +23,7 @@ class StaticSubGoalConfig(SubGoalConfig):
         Name of the link that specifies the frame in which the goal is defined
     child_link: str
         Name of the link that should match the desired position
-    desired_position : list
+    desired_pose : list
         Goal state of the concerned link
     angle: list
         Additional rotation from the parent_link frame given by a quaternion
@@ -35,7 +36,7 @@ class StaticSubGoalConfig(SubGoalConfig):
 
     parent_link: Any
     child_link: Any
-    desired_position: List[float]
+    desired_pose: List[float]
     angle: Optional[Any] = None
     low: Optional[List[float]] = None
     high: Optional[List[float]] = None
@@ -49,6 +50,9 @@ class StaticSubGoal(SubGoal):
         super().__init__(**kwargs)
         self.check_completeness()
         self.check_dimensionality()
+        dim = self.dimension()
+        self._velocity = np.zeros(dim)
+        self._acceleration = np.zeros(dim)
 
     def parent_link(self):
         return self._config.parent_link
@@ -68,20 +72,26 @@ class StaticSubGoal(SubGoal):
         else:
             return np.ones(self.dimension()) * 1
 
-    def position(self, **kwargs) -> np.ndarray:
-        return np.array(self._config.desired_position)
+    def pose(self, **kwargs) -> np.ndarray:
+        pose = np.eye(4)
+        pose[:3, :3] = Rotation.from_quat(self._config.desired_pose[3:], scalar_first=True).as_matrix()
+        pose[:3, 3] = self._config.desired_pose[:3]
+        return pose
+
+    def position(self, **kwargs):
+        return self._config.desired_pose[:3]
 
     def velocity(self, **kwargs) -> np.ndarray:
-        return np.zeros(self.dimension())
+        return self._velocity
 
-    def acceleration(self, **kwargs):
-        return np.zeros(self.dimension())
+    def acceleration(self, **kwargs) -> np.ndarray:
+        return self._acceleration
 
     def shuffle(self):
         random_pos = np.random.uniform(
             self.limit_low(), self.limit_high(), self.dimension()
         )
-        self._config.desired_position = random_pos.tolist()
+        self._config.desired_pose = random_pos.tolist()
 
     def angle(self):
         if isinstance(self._config.angle, float):

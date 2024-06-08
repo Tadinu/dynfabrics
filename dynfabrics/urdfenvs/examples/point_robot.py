@@ -1,10 +1,11 @@
 import gymnasium as gym
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
 import numpy as np
 
-from urdfenvs.scene_examples.obstacles import *
-from urdfenvs.scene_examples.goal import *
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.scene_examples.obstacles import *
+from dynfabrics.urdfenvs.scene_examples.goal import *
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+
 
 def run_point_robot(n_steps=1000, render=False, goal=True, obstacles=True):
     robots = [
@@ -31,7 +32,7 @@ def run_point_robot(n_steps=1000, render=False, goal=True, obstacles=True):
     history = []
     env.reconfigure_camera(2.0, 0.0, -90.01, (0, 0, 0))
     for _ in range(n_steps):
-        ob, _, terminated, _, info  = env.step(action)
+        ob, _, terminated, _, info = env.step(action)
         if terminated:
             print(info)
             break

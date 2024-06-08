@@ -1,17 +1,18 @@
 import os
 import casadi as ca
 import numpy as np
-from forwardkinematics import GenericXMLFk
+from dynfabrics.forwardkinematics import GenericXMLFk
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
-XML_FILE=absolute_path + "/assets/xarm.xml"
+XML_FILE = absolute_path + "/assets/xarm.xml"
+
 
 def main():
     with open(XML_FILE, "r") as file:
         urdf = file.read()
     fk_panda = GenericXMLFk(
         urdf,
-        root_link = 'link0',
+        root_link='link0',
         end_links=["link7"],
     )
     dof = 13

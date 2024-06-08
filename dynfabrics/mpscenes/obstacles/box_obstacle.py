@@ -3,8 +3,7 @@ from typing import Optional, List
 
 from omegaconf import OmegaConf
 import numpy as np
-from mpscenes.obstacles.collision_obstacle import CollisionObstacle, CollisionObstacleConfig, GeometryConfig
-
+from dynfabrics.mpscenes.obstacles.collision_obstacle import CollisionObstacle, CollisionObstacleConfig, GeometryConfig
 
 
 @dataclass
@@ -130,14 +129,19 @@ class BoxObstacle(CollisionObstacle):
         self._config.geometry.width = float(random_width[0])
         self._config.geometry.height = float(random_height[0])
 
-    def distance(self, position: np.ndarray, **kwargs) -> float:
+    def distance(self, point: np.ndarray, **kwargs) -> float:
         """
         Get distance between point and the box obstacleself.
 
         The point is transformed into the main axes of the obstacle. Then, the
         halfplanes are used to compute the distance.
         """
-        pos = self.position_into_obstacle_frame(position, **kwargs)
-        q = np.transpose(np.subtract(np.transpose(np.absolute(pos)),
-                                     np.array(self.size())/2.0)) 
-        return np.linalg.norm(np.maximum(q, 0), axis=0) + np.minimum(np.maximum(q[0], np.maximum(q[1], q[2])), 0.0)
+        pos = self.point_into_obstacle_frame(point, **kwargs)
+        if True:
+            half_size = 0.5 * np.asarray(self.size()).reshape(3, -1)
+            q = np.abs(pos) - (half_size if pos.ndim > 1 else half_size.ravel())
+            return np.linalg.norm(np.maximum(q, 0.0), axis=0) + np.minimum(np.max(q, axis=0), 0.0)
+        else:
+            q = np.transpose(np.subtract(np.transpose(np.absolute(pos)),
+                                         np.array(self.size()) / 2.0))
+            return np.linalg.norm(np.maximum(q, 0), axis=0) + np.minimum(np.maximum(q[0], np.maximum(q[1], q[2])), 0.0)

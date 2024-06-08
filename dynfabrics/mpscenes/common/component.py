@@ -2,7 +2,7 @@ from abc import ABC
 import yaml
 from omegaconf import OmegaConf
 
-from mpscenes.common.errors import (
+from dynfabrics.mpscenes.common.errors import (
     ComponentIncompleteError,
     DimensionNotSuitableForEnv,
 )

@@ -1,14 +1,13 @@
 import gymnasium as gym
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
-from urdfenvs.scene_examples.goal import goal1
-from urdfenvs.scene_examples.obstacles import (
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.scene_examples.goal import goal1
+from dynfabrics.urdfenvs.scene_examples.obstacles import (
     movable_obstacle,
     dynamicSphereObst3,
 )
 import numpy as np
-
 
 
 def run_point_robot_with_full_sensor(n_steps=10, render=False, obstacles=True, goal=True):
@@ -18,7 +17,7 @@ def run_point_robot_with_full_sensor(n_steps=10, render=False, obstacles=True, g
     env: UrdfEnv = UrdfEnv(
         dt=0.01, robots=robots, render=render
     )
-    #env.add_obstacle(sphereObst1)
+    # env.add_obstacle(sphereObst1)
     env.add_obstacle(dynamicSphereObst3)
     env.add_obstacle(movable_obstacle)
     env.add_goal(goal1)
@@ -38,7 +37,7 @@ def run_point_robot_with_full_sensor(n_steps=10, render=False, obstacles=True, g
         env.shuffle_obstacles()
         initial_observations.append(ob)
         print(f"Initial observation : {ob}")
-        #assert np.array_equal(initial_observations[0], ob)
+        # assert np.array_equal(initial_observations[0], ob)
 
         history = []
         for _ in range(n_steps):

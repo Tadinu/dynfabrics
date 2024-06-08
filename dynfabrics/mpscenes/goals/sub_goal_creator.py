@@ -1,17 +1,18 @@
-from mpscenes.goals.static_sub_goal import StaticSubGoal
-from mpscenes.goals.static_joint_space_sub_goal import StaticJointSpaceSubGoal
-from mpscenes.goals.dynamic_sub_goal import DynamicSubGoal
-from mpscenes.common.errors import UnknownSubGoalType
+from dynfabrics.mpscenes.goals.sub_goal import SubGoalType
+from dynfabrics.mpscenes.goals.static_sub_goal import StaticSubGoal
+from dynfabrics.mpscenes.goals.static_joint_space_sub_goal import StaticJointSpaceSubGoal
+from dynfabrics.mpscenes.goals.dynamic_sub_goal import DynamicSubGoal
+from dynfabrics.mpscenes.common.errors import UnknownSubGoalType
 
 
 class SubGoalCreator(object):
     def __init__(self):
         pass
 
-    def create_sub_goal(self, sub_goal_type, name, content_dict):
-        if sub_goal_type == "staticSubGoal":
+    def create_sub_goal(self, sub_goal_type: SubGoalType, name: str, content_dict):
+        if sub_goal_type == SubGoalType.STATIC:
             return StaticSubGoal(name=name, content_dict=content_dict)
-        elif sub_goal_type in ("analyticSubGoal", "splineSubGoal"):
+        elif sub_goal_type in (SubGoalType.ANALYTIC, SubGoalType.SPLINE):
             return DynamicSubGoal(name=name, content_dict=content_dict)
         elif sub_goal_type == "staticJointSpaceSubGoal":
             return StaticJointSpaceSubGoal(name=name, content_dict=content_dict)

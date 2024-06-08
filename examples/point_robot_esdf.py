@@ -5,14 +5,14 @@ import numpy as np
 from scipy import ndimage
 import pybullet as p
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
@@ -148,7 +148,7 @@ def initalize_environment(render):
             "child_link": 'base_link',
             "desired_position": [3.5, 0.5],
             "epsilon": 0.1,
-            "type": "staticSubGoal"
+            "type": SubGoalType.STATIC
         }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)

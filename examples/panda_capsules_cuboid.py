@@ -1,19 +1,17 @@
 import os
 from typing import Tuple
-import gymnasium as gym
 import numpy as np
-
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
-
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.sensors.full_sensor import FullSensor
 import quaternionic
-from mpscenes.goals.goal_composition import GoalComposition
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.obstacles.box_obstacle import BoxObstacle
-from dynfabrics.components.energies.execution_energies import ExecutionLagrangian
 
+from dynfabrics.forwardkinematics import GenericURDFFk
+
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
+from dynfabrics.components.energies.execution_energies import ExecutionLagrangian
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
@@ -102,7 +100,7 @@ def initalize_environment(render=True, obstacle_resolution=8):
             "child_link": "panda_link8",
             "desired_position": whole_position,
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)

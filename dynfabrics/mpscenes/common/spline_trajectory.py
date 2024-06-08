@@ -4,8 +4,8 @@ from geomdl import BSpline
 from geomdl import utilities
 import logging
 
-from mpscenes.common.errors import TrajectoryComponentMissingError
-from mpscenes.common.reference_trajectory import ReferenceTrajectory
+from dynfabrics.mpscenes.common.errors import TrajectoryComponentMissingError
+from dynfabrics.mpscenes.common.reference_trajectory import ReferenceTrajectory
 
 
 class SplineTrajectory(ReferenceTrajectory):
@@ -25,8 +25,6 @@ class SplineTrajectory(ReferenceTrajectory):
                 "Spline definition not complete. Missing component in trajectory: duration"
             )
         self.initialize_spline()
-
-
 
     def initialize_spline(self):
         self._traj = BSpline.Curve()
@@ -61,10 +59,10 @@ class SplineTrajectory(ReferenceTrajectory):
         v_raw = np.array(xds[1])
         a_raw = np.array(xds[2])
         v_scaling = (
-            1 * np.pi / self._duration * np.sin(time_step * np.pi / self._duration)
+                1 * np.pi / self._duration * np.sin(time_step * np.pi / self._duration)
         )
         a_scaling = (
-            1 * np.pi / self._duration * np.cos(time_step * np.pi / self._duration)
+                1 * np.pi / self._duration * np.cos(time_step * np.pi / self._duration)
         )
         velocity = v_scaling * v_raw / np.linalg.norm(v_raw)
         if np.linalg.norm(a_raw) < 1e-5:

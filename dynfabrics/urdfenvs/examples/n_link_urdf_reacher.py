@@ -1,7 +1,7 @@
 import numpy as np
 
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
 
 
 def run_n_link_reacher(n_steps=1000, render=False, goal=True, obstacles=True):

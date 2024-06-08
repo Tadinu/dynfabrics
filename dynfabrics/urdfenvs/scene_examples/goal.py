@@ -1,6 +1,6 @@
-from mpscenes.goals.static_sub_goal import StaticSubGoal
-from mpscenes.goals.dynamic_sub_goal import DynamicSubGoal
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.goals.static_sub_goal import StaticSubGoal
+from dynfabrics.mpscenes.goals.dynamic_sub_goal import DynamicSubGoal
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 goal1Dict = {
     "weight": 1.0,
@@ -10,7 +10,7 @@ goal1Dict = {
     "child_link": 3,
     "desired_position": [1, 0, 0.1],
     "epsilon": 0.2,
-    "type": "staticSubGoal",
+    "type": SubGoalType.STATIC,
     'high': [3, 3, 0.1],
     'low': [-3, -3, 0.1],
 }
@@ -24,7 +24,7 @@ dynamicGoalDict = {
     "child_link": 3,
     "trajectory": ["0.5", "0.2 + 0.2 * sp.sin(0.3 * t)", "0.4"],
     "epsilon": 0.08,
-    "type": "analyticSubGoal",
+    "type": SubGoalType.ANALYTIC,
 }
 dynamicGoal = DynamicSubGoal(name="goal2", content_dict=dynamicGoalDict)
 splineDict = {
@@ -40,7 +40,7 @@ splineGoalDict = {
     "child_link": 3,
     "trajectory": splineDict,
     "epsilon": 0.08,
-    "type": "splineSubGoal",
+    "type": SubGoalType.SPLINE,
 }
 splineGoal = DynamicSubGoal(name="goal3", content_dict=splineGoalDict)
 goal_composition_dict = {
@@ -52,7 +52,7 @@ goal_composition_dict = {
         "child_link": 3,
         "desired_position": [1, 0, 0.1],
         "epsilon": 0.02,
-        "type": "staticSubGoal",
+        "type": SubGoalType.STATIC,
     }
 }
 goal_composition = GoalComposition(

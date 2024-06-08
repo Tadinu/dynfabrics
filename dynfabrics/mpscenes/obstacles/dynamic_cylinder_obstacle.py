@@ -2,13 +2,15 @@ from dataclasses import dataclass
 from typing import Optional
 from omegaconf import OmegaConf
 
-from mpscenes.obstacles.dynamic_obstacle import DynamicObstacle, DynamicGeometryConfig
-from mpscenes.obstacles.cylinder_obstacle import CylinderGeometryConfig, CylinderObstacle, CylinderObstacleConfig
+from dynfabrics.mpscenes.obstacles.dynamic_obstacle import DynamicObstacle, DynamicGeometryConfig
+from dynfabrics.mpscenes.obstacles.cylinder_obstacle import CylinderGeometryConfig, CylinderObstacle, \
+    CylinderObstacleConfig
 
 
 @dataclass
 class DynamicCylinderGeometryConfig(CylinderGeometryConfig, DynamicGeometryConfig):
     pass
+
 
 @dataclass
 class DynamicCylinderObstacleConfig(CylinderObstacleConfig):

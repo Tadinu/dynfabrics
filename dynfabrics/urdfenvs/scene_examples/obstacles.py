@@ -1,8 +1,8 @@
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.obstacles.dynamic_sphere_obstacle import DynamicSphereObstacle
-from mpscenes.obstacles.urdf_obstacle import UrdfObstacle
-from mpscenes.obstacles.box_obstacle import BoxObstacle
-from mpscenes.obstacles.cylinder_obstacle import CylinderObstacle
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.obstacles.dynamic_sphere_obstacle import DynamicSphereObstacle
+from dynfabrics.mpscenes.obstacles.urdf_obstacle import UrdfObstacle
+from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
+from dynfabrics.mpscenes.obstacles.cylinder_obstacle import CylinderObstacle
 
 import os
 
@@ -11,11 +11,11 @@ obst1Dict = {
     "geometry": {"position": [2.0, 2.0, 1.0], "radius": 1.0},
     "rgba": [0.3, 0.5, 0.6, 1.0],
     'low': {
-        'position' : [1.5, 0.0, 0.5],
+        'position': [1.5, 0.0, 0.5],
         'radius': 0.2,
     },
     'high': {
-         'position' : [5.0, 5.0, 1.0],
+        'position': [5.0, 5.0, 1.0],
         'radius': 0.8,
     },
 }
@@ -63,7 +63,7 @@ dynamicSphereObst3 = DynamicSphereObstacle(
 movable_obstacle_dict = {
     'type': 'box',
     'geometry': {
-        'position' : [2.0, 0.0, 2.0],
+        'position': [2.0, 0.0, 2.0],
         'orientation': [0.923, 0, 0, -0.38],
         'width': 0.2,
         'height': 0.2,
@@ -71,13 +71,13 @@ movable_obstacle_dict = {
     },
     'movable': True,
     'high': {
-         'position' : [5.0, 5.0, 1.0],
+        'position': [5.0, 5.0, 1.0],
         'width': 0.2,
         'height': 0.2,
         'length': 0.2,
     },
     'low': {
-        'position' : [0.0, 0.0, 0.5],
+        'position': [0.0, 0.0, 0.5],
         'width': 0.2,
         'height': 0.2,
         'length': 0.2,
@@ -85,76 +85,75 @@ movable_obstacle_dict = {
 }
 movable_obstacle = BoxObstacle(name="movable_box", content_dict=movable_obstacle_dict)
 
-
 wall_length = 10
 wall_obstacles_dicts = [
     {
-        'type': 'box', 
-         'geometry': {
-             'position': [wall_length/2.0, 0.0, 0.4], 'width': wall_length, 'height': 0.8, 'length': 0.1
+        'type': 'box',
+        'geometry': {
+            'position': [wall_length / 2.0, 0.0, 0.4], 'width': wall_length, 'height': 0.8, 'length': 0.1
         },
         'high': {
-            'position' : [wall_length/2.0, 0.0, 0.4],
+            'position': [wall_length / 2.0, 0.0, 0.4],
             'width': wall_length,
             'height': 0.8,
             'length': 0.1,
         },
         'low': {
-            'position' : [wall_length/2.0, 0.0, 0.4],
+            'position': [wall_length / 2.0, 0.0, 0.4],
             'width': wall_length,
             'height': 0.8,
             'length': 0.1,
         },
     },
     {
-        'type': 'box', 
-         'geometry': {
-             'position': [0.0, wall_length/2.0, 0.4], 'width': 0.1, 'height': 0.8, 'length': wall_length
+        'type': 'box',
+        'geometry': {
+            'position': [0.0, wall_length / 2.0, 0.4], 'width': 0.1, 'height': 0.8, 'length': wall_length
         },
         'high': {
-            'position' : [0.0, wall_length/2.0, 0.4],
+            'position': [0.0, wall_length / 2.0, 0.4],
             'width': 0.1,
             'height': 0.8,
             'length': wall_length,
         },
         'low': {
-            'position' : [0.0, wall_length/2.0, 0.4],
+            'position': [0.0, wall_length / 2.0, 0.4],
             'width': 0.1,
             'height': 0.8,
             'length': wall_length,
         },
     },
     {
-        'type': 'box', 
-         'geometry': {
-             'position': [0.0, -wall_length/2.0, 0.4], 'width': 0.1, 'height': 0.8, 'length': wall_length
+        'type': 'box',
+        'geometry': {
+            'position': [0.0, -wall_length / 2.0, 0.4], 'width': 0.1, 'height': 0.8, 'length': wall_length
         },
         'high': {
-            'position' : [0.0, -wall_length/2.0, 0.4],
+            'position': [0.0, -wall_length / 2.0, 0.4],
             'width': 0.1,
             'height': 0.8,
             'length': wall_length,
         },
         'low': {
-            'position' : [0.0, -wall_length/2.0, 0.4],
+            'position': [0.0, -wall_length / 2.0, 0.4],
             'width': 0.1,
             'height': 0.8,
             'length': wall_length,
         },
     },
     {
-        'type': 'box', 
-         'geometry': {
-             'position': [-wall_length/2.0, 0.0, 0.4], 'width': wall_length, 'height': 0.8, 'length': 0.1
+        'type': 'box',
+        'geometry': {
+            'position': [-wall_length / 2.0, 0.0, 0.4], 'width': wall_length, 'height': 0.8, 'length': 0.1
         },
         'high': {
-            'position' : [-wall_length/2.0, 0.0, 0.4],
+            'position': [-wall_length / 2.0, 0.0, 0.4],
             'width': wall_length,
             'height': 0.8,
             'length': 0.1,
         },
         'low': {
-            'position' : [-wall_length/2.0, 0.0, 0.4],
+            'position': [-wall_length / 2.0, 0.0, 0.4],
             'width': wall_length,
             'height': 0.8,
             'length': 0.1,
@@ -162,7 +161,8 @@ wall_obstacles_dicts = [
     },
 ]
 
-wall_obstacles = [BoxObstacle(name=f"wall_{i}", content_dict=obst_dict) for i, obst_dict in enumerate(wall_obstacles_dicts)]
+wall_obstacles = [BoxObstacle(name=f"wall_{i}", content_dict=obst_dict) for i, obst_dict in
+                  enumerate(wall_obstacles_dicts)]
 
 cylinder_obstacle_dict = {
     "type": "cylinder",

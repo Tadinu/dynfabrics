@@ -1,8 +1,8 @@
-from urdfenvs.scene_examples.obstacles import wall_obstacles
+from dynfabrics.urdfenvs.scene_examples.obstacles import wall_obstacles
 import numpy as np
 
-from urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf.generic_diff_drive_robot import GenericDiffDriveRobot
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
 
 
 def run_boxer(n_steps=1000, render=False, goal=True, obstacles=True):
@@ -12,9 +12,9 @@ def run_boxer(n_steps=1000, render=False, goal=True, obstacles=True):
             mode="vel",
             actuated_wheels=["wheel_right_joint", "wheel_left_joint"],
             castor_wheels=["rotacastor_right_joint", "rotacastor_left_joint"],
-            wheel_radius = 0.08,
-            wheel_distance = 0.494,
-            spawn_rotation=np.pi/2,
+            wheel_radius=0.08,
+            wheel_distance=0.494,
+            spawn_rotation=np.pi / 2,
         ),
     ]
     env: UrdfEnv = UrdfEnv(

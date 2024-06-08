@@ -85,7 +85,6 @@ class DynamicObstacleLeaf(GenericDynamicGeometryLeaf):
     def set_forward_map(self, obstacle_name, collision_link):
         radius_name = f"radius_{obstacle_name}"
         radius_body_name = f"radius_body_{collision_link}"
-        obstacle_dimension = self._forward_kinematics.size()[0]
         if radius_name in self._parent_variables.parameters():
             radius_variable = self._parent_variables.parameters()[radius_name]
         else:

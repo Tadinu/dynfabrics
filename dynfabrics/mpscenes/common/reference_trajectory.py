@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import sympy as sp
 
-from mpscenes.common.errors import TrajectoryComponentMissingError
+from dynfabrics.mpscenes.common.errors import TrajectoryComponentMissingError
 
 t = sp.symbols("t")
 

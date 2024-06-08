@@ -8,7 +8,7 @@ import casadi as ca
 import numpy as np
 from urdf_parser_py.urdf import URDF
 
-import forwardkinematics.urdfFks.casadiConversion.geometry.transformation_matrix as T
+import dynfabrics.forwardkinematics.urdfFks.casadiConversion.geometry.transformation_matrix as T
 
 
 class URDFparser(object):
@@ -129,12 +129,12 @@ class URDFparser(object):
         return self._link_names
 
     def get_forward_kinematics(
-        self,
-        root,
-        tip,
-        q,
-        link_transformation=np.eye(4),
-        symbolic_parameters: Dict[str, Dict[str, ca.SX]] = None,
+            self,
+            root,
+            tip,
+            q,
+            link_transformation=np.eye(4),
+            symbolic_parameters: Dict[str, Dict[str, ca.SX]] = None,
     ) -> Dict[str, ca.SX]:
         if symbolic_parameters is None:
             symbolic_parameters = {}
@@ -148,7 +148,7 @@ class URDFparser(object):
             xyzrpy = joint.origin.xyz + joint.origin.rpy
             if joint.name in symbolic_parameters:
                 for index, parameter in enumerate(
-                    ["x", "y", "z", "roll", "pitch", "yaw"]
+                        ["x", "y", "z", "roll", "pitch", "yaw"]
                 ):
                     if parameter in symbolic_parameters[joint.name]:
                         xyzrpy[index] = symbolic_parameters[joint.name][parameter]

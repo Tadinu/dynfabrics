@@ -3,18 +3,18 @@ import pprint
 import gymnasium as gym
 import numpy as np
 
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.scene_examples.obstacles import (dynamicSphereObst1,
-                                               dynamicSphereObst3, sphereObst1,
-                                               sphereObst2, urdfObst1,
-                                               wall_obstacles)
-from urdfenvs.sensors.pybullet.free_space_decomposition import \
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.scene_examples.obstacles import (dynamicSphereObst1,
+                                                          dynamicSphereObst3, sphereObst1,
+                                                          sphereObst2, urdfObst1,
+                                                          wall_obstacles)
+from dynfabrics.urdfenvs.sensors.pybullet.free_space_decomposition import \
     FreeSpaceDecompositionSensorPybullet as FreeSpaceDecompositionSensor
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
 
 
 def run_point_robot_with_freespacedecomp(
-    n_steps=1000, render=False, obstacles=True, goal=True
+        n_steps=1000, render=False, obstacles=True, goal=True
 ):
     robots = [
         GenericUrdfReacher(urdf="pointRobot.urdf", mode="vel"),
@@ -27,7 +27,7 @@ def run_point_robot_with_freespacedecomp(
         env.add_obstacle(sphereObst2)
         env.add_obstacle(dynamicSphereObst1)
     number_lidar_rays = 64
-    free_space_decomp  = FreeSpaceDecompositionSensor(
+    free_space_decomp = FreeSpaceDecompositionSensor(
         "mobile_joint_theta",
         nb_rays=number_lidar_rays,
         plotting_interval=10,
@@ -47,9 +47,9 @@ def run_point_robot_with_freespacedecomp(
     history = []
     for _ in range(n_steps):
         ob, *_ = env.step(action)
-        #print(ob['robot_0']['FreeSpaceDecompSensor'])
+        # print(ob['robot_0']['FreeSpaceDecompSensor'])
         # Access the lidar observation
-        #_ = ob["robot_0"]["LidarSensor"]
+        # _ = ob["robot_0"]["LidarSensor"]
 
         history.append(ob)
     env.close()

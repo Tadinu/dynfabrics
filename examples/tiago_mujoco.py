@@ -4,14 +4,14 @@ from copy import deepcopy
 import gymnasium as gym
 import numpy as np
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 from robotmodels.utils.robotmodel import RobotModel, LocalRobotModel
 
-from urdfenvs.sensors.full_sensor import FullSensor
-from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
+from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
+from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
 
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 from generic_diffdrive_mujoco_robot import GenericDiffDriveMujocoRobot
@@ -106,7 +106,7 @@ def initalize_environment(render: bool = True):
             "high": high_goal_limits[arm],
             "low": low_goal_limits[arm],
             "epsilon": 0.05,
-            "type": "staticSubGoal",
+            "type": SubGoalType.STATIC,
         },
     }
     # Transform goal and obst into world frame
@@ -166,7 +166,7 @@ def set_planner(goal: GoalComposition, dt: float):
     planner.set_components(
         collision_links=collision_links,
         goal=goal,
-        number_obstacles=1,
+        number_obstacles_sphere=1,
     )
     planner.concretize(time_step=dt)
     return planner

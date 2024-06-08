@@ -1,13 +1,13 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import yaml
 import numpy as np
 from omegaconf import OmegaConf
 
-from mpscenes.common.errors import MultiplePrimeGoalsError
-from mpscenes.common.component import MPComponent
-from mpscenes.goals.sub_goal import SubGoal
-from mpscenes.goals.sub_goal_creator import SubGoalCreator
+from dynfabrics.mpscenes.common.errors import MultiplePrimeGoalsError
+from dynfabrics.mpscenes.common.component import MPComponent
+from dynfabrics.mpscenes.goals.sub_goal import SubGoal
+from dynfabrics.mpscenes.goals.sub_goal_creator import SubGoalCreator
 
 
 class GoalComposition(MPComponent):
@@ -65,11 +65,12 @@ class GoalComposition(MPComponent):
         """Get list of all subgoals."""
         return self._sub_goals
 
-    def get_goal_by_name(self, name: str) -> SubGoal:
+    def get_goal_by_name(self, name: str) -> Optional[SubGoal]:
         """Get subgoal by name."""
         for sub_goal in self._sub_goals:
             if sub_goal.name() == name:
                 return sub_goal
+        return None
 
     def get_goal_by_index(self, index: int) -> SubGoal:
         """Get subgoal by index."""
@@ -95,4 +96,3 @@ class GoalComposition(MPComponent):
     def shuffle(self) -> None:
         for sub_goal in self._sub_goals:
             sub_goal.shuffle()
-

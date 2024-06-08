@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from omegaconf import OmegaConf
 from typing import Optional
 
-from mpscenes.obstacles.dynamic_obstacle import DynamicObstacle, DynamicGeometryConfig
-from mpscenes.obstacles.sphere_obstacle import SphereGeometryConfig, SphereObstacle, SphereObstacleConfig
+from dynfabrics.mpscenes.obstacles.dynamic_obstacle import DynamicObstacle, DynamicGeometryConfig
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereGeometryConfig, SphereObstacle, SphereObstacleConfig
 
 
 @dataclass
 class DynamicSphereGeometryConfig(SphereGeometryConfig, DynamicGeometryConfig):
     pass
+
 
 @dataclass
 class DynamicSphereObstacleConfig(SphereObstacleConfig):

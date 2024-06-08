@@ -2,8 +2,8 @@ import os
 
 import numpy as np
 
-from urdfenvs.robots.generic_urdf import GenericDiffDriveRobot, GenericUrdfReacher
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericDiffDriveRobot, GenericUrdfReacher
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
 
 
 def run_multi_robot(n_steps=1000, render=False, obstacles=False, goal=False):
@@ -80,12 +80,12 @@ def run_multi_robot(n_steps=1000, render=False, obstacles=False, goal=False):
     ob = env.reset(pos=padded_initial_positions, mount_positions=mount_positions)
     print(f"Initial observation : {ob}")
     if goal:
-        from urdfenvs.scene_examples.goal import dynamicGoal
+        from dynfabrics.urdfenvs.scene_examples.goal import dynamicGoal
 
         env.add_goal(dynamicGoal)
 
     if obstacles:
-        from urdfenvs.scene_examples.obstacles import dynamicSphereObst2
+        from dynfabrics.urdfenvs.scene_examples.obstacles import dynamicSphereObst2
 
         env.add_obstacle(dynamicSphereObst2)
 

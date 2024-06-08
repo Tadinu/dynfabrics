@@ -2,13 +2,13 @@ import os
 import gymnasium as gym
 import numpy as np
 
-from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
+from dynfabrics.forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
 
-from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from mpscenes.goals.goal_composition import GoalComposition
+from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
+from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
@@ -58,7 +58,7 @@ def initalize_environment(render):
             "child_link": "base_link",
             "desired_position": [4.5, 0.0],
             "epsilon": 0.1,
-            "type": "staticSubGoal"
+            "type": SubGoalType.STATIC
         }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
@@ -108,7 +108,7 @@ def set_planner(goal: GoalComposition):
     planner.set_components(
         collision_links=collision_links,
         goal=goal,
-        number_obstacles=2,
+        number_obstacles_sphere=2,
     )
     planner.concretize()
     return planner

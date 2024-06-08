@@ -1,17 +1,17 @@
 import gymnasium as gym
 import numpy as np
 
-from urdfenvs.robots.generic_urdf import GenericUrdfReacher
-from urdfenvs.scene_examples.obstacles import (
+from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
+from dynfabrics.urdfenvs.scene_examples.obstacles import (
     cylinder_obstacle,
     dynamicSphereObst1,
     sphereObst1,
     sphereObst2,
 )
-from urdfenvs.sensors.pybullet.occupancy_sensor import (
+from dynfabrics.urdfenvs.sensors.pybullet.occupancy_sensor import (
     OccupancySensorPybullet as OccupancySensor,
 )
-from urdfenvs.urdf_common.urdf_env import UrdfEnv
+from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
 
 
 def get_index_from_coordinates(point, mesh) -> tuple:
@@ -25,7 +25,7 @@ def evaluate_occupancy(point, mesh, occupancy, resolution) -> int:
 
 
 def run_point_robot_with_occupancy_sensor(
-    n_steps=10, render=False, obstacles=True, goal=True
+        n_steps=10, render=False, obstacles=True, goal=True
 ):
     robots = [
         GenericUrdfReacher(urdf="pointRobot.urdf", mode="vel"),

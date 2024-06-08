@@ -7,7 +7,7 @@ from copy import deepcopy
 from dynfabrics.diffGeometry.spec import Spec, checkCompatability
 from dynfabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
 
-from dynfabrics.helpers.functions import joinRefTrajs
+from dynfabrics.helpers.functions import joinRefTrajs, is_sparse
 from dynfabrics.helpers.variables import Variables
 from dynfabrics.helpers.casadiFunctionWrapper import CasadiFunctionWrapper
 
@@ -151,7 +151,10 @@ class Lagrangian(object):
     def pull(self, dm: DifferentialMap):
         assert isinstance(dm, DifferentialMap)
         l_subst = ca.substitute(self._l, self.x(), dm._phi)
-        l_subst2 = ca.substitute(l_subst, self.xdot(), dm.phidot())
+        dm_phidot = dm.phidot()
+        xdot = self.xdot()
+        l_subst2 = ca.substitute(l_subst, xdot,
+                                 ca.project(dm_phidot, xdot.sparsity()) if is_sparse(dm_phidot) else dm_phidot)
         new_state_variables = dm.state_variables()
         new_parameters = {}
         new_parameters.update(self._vars.parameters())

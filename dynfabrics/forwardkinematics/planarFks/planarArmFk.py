@@ -1,7 +1,7 @@
 from typing import Union
 import numpy as np
 import casadi as ca
-from forwardkinematics.planarFks.planar_fk import ForwardKinematicsPlanar
+from dynfabrics.forwardkinematics.planarFks.planar_fk import ForwardKinematicsPlanar
 
 
 def get_rotation_matrix_casadi(angle: ca.SX) -> ca.SX:
@@ -33,12 +33,12 @@ class PlanarArmFk(ForwardKinematicsPlanar):
         self._n = n
 
     def casadi(
-        self,
-        q: ca.SX,
-        child_link: Union[int, str],
-        parent_link: Union[int, str, None] = None,
-        link_transformation=np.eye(3),
-        position_only: bool = False,
+            self,
+            q: ca.SX,
+            child_link: Union[int, str],
+            parent_link: Union[int, str, None] = None,
+            link_transformation=np.eye(3),
+            position_only: bool = False,
     ):
         child_link = self.ensure_int_link(child_link)
         if not parent_link:
@@ -61,12 +61,12 @@ class PlanarArmFk(ForwardKinematicsPlanar):
             return fk
 
     def numpy(
-        self,
-        q: np.ndarray,
-        child_link: Union[int, str],
-        parent_link: Union[int, str, None] = None,
-        link_transformation=np.eye(3),
-        position_only: bool = False,
+            self,
+            q: np.ndarray,
+            child_link: Union[int, str],
+            parent_link: Union[int, str, None] = None,
+            link_transformation=np.eye(3),
+            position_only: bool = False,
     ):
         child_link = self.ensure_int_link(child_link)
         if not parent_link:
