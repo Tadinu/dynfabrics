@@ -10,17 +10,17 @@ from urdfenvs.sensors.full_sensor import FullSensor
 
 from mpscenes.obstacles.box_obstacle import BoxObstacle
 from mpscenes.goals.goal_composition import GoalComposition
-from fabrics.components.energies.execution_energies import ExecutionLagrangian
+from dynfabrics.components.energies.execution_energies import ExecutionLagrangian
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 # Fabrics example for a 3D point mass robot. The fabrics planner uses a 2D point
 # mass to compute actions for a simulated 3D point mass.
 #
 # todo: tune behavior.
 TF = np.identity(4)
-TF[0:3,0:3] = np.array([[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]])
-CAP_LENGTH=1.0
+TF[0:3, 0:3] = np.array([[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]])
+CAP_LENGTH = 1.0
 RADIUS = 0.5
 
 
@@ -39,7 +39,7 @@ def initalize_environment(render):
     robots = [
         GenericUrdfReacher(urdf="pointRobot.urdf", mode="vel"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
@@ -47,33 +47,33 @@ def initalize_environment(render):
     pos0 = np.array([-2.0, 3.0, 0.2])
     vel0 = np.array([0.1, 0.0, 0.0])
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=["position", "size"],
-            variance=0.0,
+        goal_mask=["position", "weight"],
+        obstacle_mask=["position", "size"],
+        variance=0.0,
     )
     # Definition of the obstacle.
     static_obst_dict = {
-            "type": "box",
-            "geometry": {
-                "position": [0.0, 2.0, 0.05],
-                 "width": 8.0,
-                 "length": 1.0,
-                 "height": 1.0,
-            },
+        "type": "box",
+        "geometry": {
+            "position": [0.0, 2.0, 0.05],
+            "width": 8.0,
+            "length": 1.0,
+            "height": 1.0,
+        },
     }
     obst1 = BoxObstacle(name="staticObst1", content_dict=static_obst_dict)
     # Definition of the goal.
     goal_dict = {
-            "subgoal0": {
-                "weight": 0.5,
-                "is_primary_goal": True,
-                "indices": [0, 1],
-                "parent_link" : 'world',
-                "child_link" : 'base_link',
-                "desired_position": [3.5, -2.5],
-                "epsilon" : 0.1,
-                "type": "staticSubGoal"
-            }
+        "subgoal0": {
+            "weight": 0.5,
+            "is_primary_goal": True,
+            "indices": [0, 1],
+            "parent_link": 'world',
+            "child_link": 'base_link',
+            "desired_position": [3.5, -2.5],
+            "epsilon": 0.1,
+            "type": "staticSubGoal"
+        }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     env.reset(pos=pos0, vel=vel0)
@@ -118,9 +118,9 @@ def set_planner(goal: GoalComposition) -> ParameterizedFabricPlanner:
     )
     # The planner hides all the logic behind the function set_components.
     q = planner.variables.position_variable()
-    tf_capsule_origin =  forward_kinematics.casadi(
+    tf_capsule_origin = forward_kinematics.casadi(
         q, 'base_link', link_transformation=TF
-    ) 
+    )
     planner.add_capsule_cuboid_geometry(
         "obst_cuboid_0", "capsule_0", tf_capsule_origin, CAP_LENGTH
     )
@@ -150,11 +150,11 @@ def run_point_robot_urdf(n_steps=10000, render=True):
     planner: ParameterizedFabricPlanner = set_planner(goal)
     link_id = 2
     env.add_collision_link(
-            robot_index=0,
-            link_index=link_id,
-            shape_type="capsule",
-            size=[RADIUS, CAP_LENGTH],
-            link_transformation=TF,
+        robot_index=0,
+        link_index=link_id,
+        shape_type="capsule",
+        size=[RADIUS, CAP_LENGTH],
+        link_transformation=TF,
     )
 
     action = np.array([0.0, 0.0, 0.0])
@@ -176,6 +176,7 @@ def run_point_robot_urdf(n_steps=10000, render=True):
         ob, *_, = env.step(action)
     env.close()
     return {}
+
 
 if __name__ == "__main__":
     res = run_point_robot_urdf(n_steps=10000, render=True)

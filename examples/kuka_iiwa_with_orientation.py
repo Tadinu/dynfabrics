@@ -9,7 +9,7 @@ from urdfenvs.sensors.full_sensor import FullSensor
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 """
 Experiments with Kuka iiwa
@@ -22,6 +22,7 @@ for the first obstacle, fabrics ends up in a local minima and is unable to
 recover from it. This would be a good case to improve with imitation learning.
 """
 
+
 def initalize_environment(render=True, nr_obst: int = 0):
     """
     Initializes the simulation environment.
@@ -32,14 +33,14 @@ def initalize_environment(render=True, nr_obst: int = 0):
     robots = [
         GenericUrdfReacher(urdf="iiwa7.urdf", mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=['position', 'size'],
-            variance=0.0
+        goal_mask=["position", "weight"],
+        obstacle_mask=['position', 'size'],
+        variance=0.0
     )
     # Definition of the obstacle.
     static_obst_dict = {
@@ -174,24 +175,24 @@ def run_kuka_example(n_steps=5000, render=True):
         q = ob_robot["joint_state"]["position"]
 
         # rotate the positions that determine the orientations of the end-effector to get the desired orientation:
-        x_goal_1_x = ob_robot['FullSensor']['goals'][nr_obst+3]['position']
-        x_goal_2_z = ob_robot['FullSensor']['goals'][nr_obst+4]['position']
+        x_goal_1_x = ob_robot['FullSensor']['goals'][nr_obst + 3]['position']
+        x_goal_2_z = ob_robot['FullSensor']['goals'][nr_obst + 4]['position']
         p_orient_rot_x = rot_matrix @ x_goal_1_x
         p_orient_rot_z = rot_matrix @ x_goal_2_z
 
         arguments_dict = dict(
             q=q,
             qdot=ob_robot["joint_state"]["velocity"],
-            x_goal_0=ob_robot['FullSensor']['goals'][nr_obst+2]['position'],
-            weight_goal_0=ob_robot['FullSensor']['goals'][nr_obst+2]['weight'],
+            x_goal_0=ob_robot['FullSensor']['goals'][nr_obst + 2]['position'],
+            weight_goal_0=ob_robot['FullSensor']['goals'][nr_obst + 2]['weight'],
             x_goal_1=p_orient_rot_x,
-            weight_goal_1=ob_robot['FullSensor']['goals'][nr_obst+3]['weight'],
+            weight_goal_1=ob_robot['FullSensor']['goals'][nr_obst + 3]['weight'],
             x_goal_2=p_orient_rot_z,
-            weight_goal_2=ob_robot['FullSensor']['goals'][nr_obst+4]['weight'],
+            weight_goal_2=ob_robot['FullSensor']['goals'][nr_obst + 4]['weight'],
             x_obst_0=ob_robot['FullSensor']['obstacles'][nr_obst]['position'],
             radius_obst_0=ob_robot['FullSensor']['obstacles'][nr_obst]['size'],
-            x_obst_1=ob_robot['FullSensor']['obstacles'][nr_obst+1]['position'],
-            radius_obst_1=ob_robot['FullSensor']['obstacles'][nr_obst+1]['size'],
+            x_obst_1=ob_robot['FullSensor']['obstacles'][nr_obst + 1]['position'],
+            radius_obst_1=ob_robot['FullSensor']['obstacles'][nr_obst + 1]['size'],
             radius_body_links=collision_radii,
             constraint_0=np.array([0, 0, 1, 0.0]))
 
@@ -199,11 +200,11 @@ def run_kuka_example(n_steps=5000, render=True):
         ob, *_ = env.step(action)
 
         # check if the orientation is correctly reached:
-        if w%100 == 0:
+        if w % 100 == 0:
             pose_ee = planner._forward_kinematics.numpy(
                 q,
-                parent_link= 'iiwa_link_0',
-                child_link= 'iiwa_link_ee',
+                parent_link='iiwa_link_0',
+                child_link='iiwa_link_ee',
             )
             rotation_distance = np.linalg.norm(pose_ee[0:3, 0:3] - rot_matrix)
             print("Distance in naive matrix norm:", rotation_distance)

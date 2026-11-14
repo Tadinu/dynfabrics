@@ -1,7 +1,8 @@
 import pytest
 import casadi as ca
 
-from fabrics.helpers.functions import parse_symbolic_input
+from dynfabrics.helpers.functions import parse_symbolic_input
+
 
 def test_parse_symbolic_input():
     x = ca.SX.sym("x", 1)

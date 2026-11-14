@@ -1,9 +1,9 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.spec import Spec
-from fabrics.helpers.exceptions import SpecException
-from fabrics.helpers.variables import Variables
+from dynfabrics.diffGeometry.spec import Spec
+from dynfabrics.helpers.exceptions import SpecException
+from dynfabrics.helpers.variables import Variables
 
 
 @pytest.fixture

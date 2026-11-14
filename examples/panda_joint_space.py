@@ -9,7 +9,8 @@ from urdfenvs.robots.generic_urdf import GenericUrdfReacher
 
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+
 
 # TODO joint space goals cannot be handled by the full sensor because they cannot
 # be added to the environment
@@ -25,7 +26,7 @@ def initalize_environment(render=True):
     robots = [
         GenericUrdfReacher(urdf="panda.urdf", mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
@@ -34,7 +35,7 @@ def initalize_environment(render=True):
         "subgoal0": {
             "weight": 0.5,
             "is_primary_goal": True,
-            "indices": list(range(0,7)),
+            "indices": list(range(0, 7)),
             "desired_position": [-1.0, 0.7, 0.5, -1.501, 0.0, 1.8675, 0.0],
             "epsilon": 0.05,
             "type": "staticJointSpaceSubGoal",

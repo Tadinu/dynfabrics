@@ -1,7 +1,8 @@
 import casadi as ca
 import pytest
 import numpy as np
-from fabrics.helpers.distances import *
+from dynfabrics.helpers.distances import *
+
 
 def test_closest_point_line():
     line_start = ca.SX.sym("line_start", 3)
@@ -21,6 +22,7 @@ def test_closest_point_line():
     assert closest_point_numpy[0] == pytest.approx(1.0)
     assert closest_point_numpy[1] == pytest.approx(1.2)
     assert closest_point_numpy[2] == pytest.approx(0.0)
+
 
 def test_distance_point_line():
     line_start = ca.SX.sym("line_start", 3)
@@ -51,6 +53,7 @@ def test_distance_point_line():
         distance_function(point_numpy, line_start_numpy, line_end_numpy)
     )
     assert distance_numpy == np.sqrt(2)
+
 
 def test_distance_line_line():
     line_1_start = ca.SX.sym("line_1_start", 3)
@@ -165,8 +168,6 @@ def test_distance_line_line():
         assert distance_numpy >= 2.0
 
 
-
-
 def test_distance_point_plane():
     plane = ca.SX.sym("plane", 4)
     point = ca.SX.sym("point", 3)
@@ -254,8 +255,8 @@ def test_distance_capsule_sphere():
     assert distance_numpy == np.sqrt(2) - 0.3 - 0.4
 
     capsule_centers_numpy = [
-        np.array([-1.0,  1.0, 0.0]),
-        np.array([ 1.0, -1.0, 0.0]),
+        np.array([-1.0, 1.0, 0.0]),
+        np.array([1.0, -1.0, 0.0]),
     ]
     sphere_center_numpy = np.array([1.0, 1.0, 0.0])
     sphere_radius_numpy = 0.0
@@ -270,6 +271,7 @@ def test_distance_capsule_sphere():
         )
     )
     assert distance_numpy == pytest.approx(np.sqrt(2.0) - 0.0 - 0.0)
+
 
 def test_edges_of_cuboid():
     cuboid_center = ca.SX.sym("cuboid_center", 3)
@@ -317,7 +319,8 @@ def test_distance_rectangle_point():
     distance_numpy = np.array(
         distance_function(rectangle_center_numpy, rectangle_size_numpy, point_numpy)
     )
-    assert distance_numpy == (2.5**2+1.5**2)**0.5
+    assert distance_numpy == (2.5 ** 2 + 1.5 ** 2) ** 0.5
+
 
 def test_distance_rectangle_line():
     """
@@ -374,6 +377,7 @@ def test_distance_rectangle_line():
     )
     assert distance_numpy == pytest.approx(1.0)
 
+
 def test_distance_cuboid_point():
     """
     Test distance of a cuboid (3D) to a point (3D)
@@ -407,6 +411,7 @@ def test_distance_cuboid_point():
         distance_function(cuboid_center_numpy, cuboid_size_numpy, point_numpy)
     )
     assert distance_numpy == 0.0
+
 
 def test_distance_cuboid_sphere():
     """
@@ -462,6 +467,7 @@ def test_distance_cuboid_sphere():
     )
     assert distance_numpy == 0.0
 
+
 def test_distance_cuboid_capsule():
     """
     Test distance of a cuboid (3D) to a capsule (3D)
@@ -501,7 +507,7 @@ def test_distance_cuboid_capsule():
         )
     )
     assert distance_numpy == 1.8
-    
+
     cuboid_center_numpy = np.array([0.0, 0.0, 0.0])
     cuboid_size_numpy = np.array([1.0, 1.0, 1.0])
     capsule_radius_numpy = np.array([0.0])
@@ -537,4 +543,4 @@ def test_distance_cuboid_capsule():
             capsule_radius_numpy,
         )
     )
-    assert distance_numpy == pytest.approx(0.70710678-0.2)
+    assert distance_numpy == pytest.approx(0.70710678 - 0.2)

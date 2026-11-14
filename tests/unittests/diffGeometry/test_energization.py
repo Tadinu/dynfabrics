@@ -1,15 +1,15 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.geometry import Geometry
-from fabrics.diffGeometry.energized_geometry import (
+from dynfabrics.diffGeometry.geometry import Geometry
+from dynfabrics.diffGeometry.energized_geometry import (
     EnergizedGeometry,
     WeightedGeometry,
 )
-from fabrics.diffGeometry.energy import Lagrangian, FinslerStructure
-from fabrics.diffGeometry.diffMap import DifferentialMap
-from fabrics.helpers.constants import eps
-from fabrics.helpers.variables import Variables
+from dynfabrics.diffGeometry.energy import Lagrangian, FinslerStructure
+from dynfabrics.diffGeometry.diffMap import DifferentialMap
+from dynfabrics.helpers.constants import eps
+from dynfabrics.helpers.variables import Variables
 
 
 @pytest.fixture
@@ -218,10 +218,10 @@ def test_sum_energization_man_compute_rhs(two_energizations):
     M_we2, f_we2, xddot_we2, alpha_we2 = we_2.evaluate(x=x, xdot=xdot)
     M_we, f_we, xddot_we, alpha_we = we.evaluate(x=x, xdot=xdot)
     f_we1_we2_alpha = (
-        f_we1
-        + np.dot(M_we1, alpha_we1 * xdot)
-        + f_we2
-        + np.dot(M_we2, alpha_we2 * xdot)
+            f_we1
+            + np.dot(M_we1, alpha_we1 * xdot)
+            + f_we2
+            + np.dot(M_we2, alpha_we2 * xdot)
     )
     assert f_we1_we2_alpha[0] == pytest.approx(f_en[0])
     assert f_we1_we2_alpha[1] == pytest.approx(f_en[1])
@@ -250,10 +250,10 @@ def test_two_spaces_energization(two_different_spaces):
     M_we2, f_we2, qddot_we2, alpha_we2 = we_2.evaluate(q=q, qdot=qdot)
     M_we, f_we, qddot_we, alpha_we = we.evaluate(q=q, qdot=qdot)
     f_we1_we2_alpha = (
-        f_we1
-        + np.dot(M_we1, alpha_we1 * qdot)
-        + f_we2
-        + np.dot(M_we2, alpha_we2 * qdot)
+            f_we1
+            + np.dot(M_we1, alpha_we1 * qdot)
+            + f_we2
+            + np.dot(M_we2, alpha_we2 * qdot)
     )
     f_test = f_we1 + f_we2 + np.dot(M_we, alpha_we * qdot)
     assert f_we1_we2_alpha[0] == pytest.approx(f_en[0])

@@ -1,11 +1,11 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.spec import Spec
-from fabrics.diffGeometry.energy import Lagrangian, FinslerStructure
-from fabrics.diffGeometry.diffMap import DifferentialMap
+from dynfabrics.diffGeometry.spec import Spec
+from dynfabrics.diffGeometry.energy import Lagrangian, FinslerStructure
+from dynfabrics.diffGeometry.diffMap import DifferentialMap
 
-from fabrics.helpers.variables import Variables
+from dynfabrics.helpers.variables import Variables
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def two_dimensional_lagrangian():
     x = ca.SX.sym("x", 2)
     xdot = ca.SX.sym("xdot", 2)
     lam = 0.25
-    l = 0.5 * lam / (ca.norm_2(x)**2) * ca.norm_2(xdot)
+    l = 0.5 * lam / (ca.norm_2(x) ** 2) * ca.norm_2(xdot)
     lg = Lagrangian(l, x=x, xdot=xdot)
     phi = ca.vertcat(ca.cos(q[1]) * q[0], ca.sin(q[1]) * q[0])
     variables = Variables(state_variables={'q': q, 'qdot': qdot})
@@ -77,6 +77,7 @@ def test_simple_finsler_struct(simple_finsler_structure):
     assert f == pytest.approx(f_man)
     assert M[0] == pytest.approx(M_man[0])
 
+
 def test_pull_lagrangian(two_dimensional_lagrangian):
     lg, dm = two_dimensional_lagrangian
     lg.concretize()
@@ -99,4 +100,3 @@ def test_pull_lagrangian(two_dimensional_lagrangian):
     assert M_p_test[1, 1] == pytest.approx(M_p[1, 1])
     assert f_p_test[0] == pytest.approx(f_p[0])
     assert f_p_test[1] == pytest.approx(f_p[1])
-

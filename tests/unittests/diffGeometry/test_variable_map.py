@@ -1,12 +1,12 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.geometry import Geometry
-from fabrics.diffGeometry.spec import Spec
-from fabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
+from dynfabrics.diffGeometry.geometry import Geometry
+from dynfabrics.diffGeometry.spec import Spec
+from dynfabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
 
+from dynfabrics.helpers.variables import Variables
 
-from fabrics.helpers.variables import Variables
 
 @pytest.fixture
 def variable_geometry():
@@ -15,7 +15,8 @@ def variable_geometry():
     q_p = ca.SX.sym("q_p", 1)
     qdot_p = ca.SX.sym("qdot_p", 1)
     qddot_p = ca.SX.sym("qddot_p", 1)
-    variables = Variables(state_variables={'q': q, 'qdot': qdot}, parameters= {'x_ref': q_p, 'xdot_ref': qdot_p, 'xddot_ref': qddot_p})
+    variables = Variables(state_variables={'q': q, 'qdot': qdot},
+                          parameters={'x_ref': q_p, 'xdot_ref': qdot_p, 'xddot_ref': qddot_p})
     q_rel = ca.SX.sym("q_rel", 1)
     qdot_rel = ca.SX.sym("qdot_rel", 1)
     x = ca.SX.sym("x", 1)
@@ -35,7 +36,8 @@ def variable_spec():
     q_p = ca.SX.sym("q_p", 2)
     qdot_p = ca.SX.sym("qdot_p", 2)
     qddot_p = ca.SX.sym("qddot_p", 2)
-    variables = Variables(state_variables={'q': q, 'qdot': qdot}, parameters= {'x_ref': q_p, 'xdot_ref': qdot_p, 'xddot_ref': qddot_p})
+    variables = Variables(state_variables={'q': q, 'qdot': qdot},
+                          parameters={'x_ref': q_p, 'xdot_ref': qdot_p, 'xddot_ref': qddot_p})
     q_rel = ca.SX.sym("q_rel", 2)
     qdot_rel = ca.SX.sym("qdot_rel", 2)
     dm_rel = DynamicDifferentialMap(variables)
@@ -58,7 +60,7 @@ def test_variable_geometry(variable_geometry):
     q_p = np.array([0.2])
     qdot_p = np.array([1.0])
     qddot_p = np.array([0.0])
-    h_test = 1 / (2 * np.linalg.norm(q - q_p)**2) * np.linalg.norm(qdot-qdot_p)**2
+    h_test = 1 / (2 * np.linalg.norm(q - q_p) ** 2) * np.linalg.norm(qdot - qdot_p) ** 2
     h, qddot = geo_var.evaluate(q=q, qdot=qdot, x_ref=q_p, xdot_ref=qdot_p, xddot_ref=qddot_p)
     assert isinstance(h, np.ndarray)
     assert h[0] == pytest.approx(h_test, rel=1e-4)
@@ -79,7 +81,7 @@ def test_variable_spec(variable_spec):
     qdot_p = np.array([1.0, 0.0])
     qddot_p = np.array([0.0, 0.0])
     M, f, xddot = s_var.evaluate(q=q, qdot=qdot, x_ref=q_p, xdot_ref=qdot_p, xddot_ref=qddot_p)
-    f_test = -0.5 / ((q-q_p) ** 2)
+    f_test = -0.5 / ((q - q_p) ** 2)
     M_test = np.identity(2)
     xddot_test = np.linalg.solve(M_test, -f_test)
     assert isinstance(f, np.ndarray)

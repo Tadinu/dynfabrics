@@ -14,35 +14,36 @@ from urdfenvs.sensors.full_sensor import FullSensor
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 logging.basicConfig(level=logging.ERROR)
 
 
 def edf(pos, proj_rgb) -> tuple:
-    #to binary image, obstacle are red
+    # to binary image, obstacle are red
     proj_r = proj_rgb[:, :, 1]
-    proj_bin = ((1-proj_r) > 0.9)
+    proj_bin = ((1 - proj_r) > 0.9)
 
     pixel_to_meter_ratio = 0.1
     offset = np.array([6.5, 5])
     direction_multiplier = np.array([1, -1])
-    
-    dist_map = ndimage.distance_transform_edt(1-proj_bin)
-    dist_map = dist_map * pixel_to_meter_ratio # /100 pixels * 20 in meters
+
+    dist_map = ndimage.distance_transform_edt(1 - proj_bin)
+    dist_map = dist_map * pixel_to_meter_ratio  # /100 pixels * 20 in meters
 
     # convert pos to pixels
-    pos_p = np.rint((direction_multiplier * pos + offset)/pixel_to_meter_ratio)
+    pos_p = np.rint((direction_multiplier * pos + offset) / pixel_to_meter_ratio)
     pos_p = [int(pos_pi) for pos_pi in pos_p]
 
     dist_pos = dist_map[int(pos_p[1]), int(pos_p[0])]
 
     gradient_map = np.gradient(dist_map)
-    gradient_x = gradient_map[1]/pixel_to_meter_ratio
-    gradient_y = -gradient_map[0]/pixel_to_meter_ratio
+    gradient_x = gradient_map[1] / pixel_to_meter_ratio
+    gradient_y = -gradient_map[0] / pixel_to_meter_ratio
     grad_x_pos = gradient_x[pos_p[1], pos_p[0]]
     grad_y_pos = gradient_y[pos_p[1], pos_p[0]]
-    return (dist_pos, grad_x_pos, grad_y_pos) #dist_map
+    return (dist_pos, grad_x_pos, grad_y_pos)  # dist_map
+
 
 def get_top_view_image(save=False, load_only=False):
     try:
@@ -52,7 +53,7 @@ def get_top_view_image(save=False, load_only=False):
         proj_depth = np.load(depth_file)
     except FileNotFoundError as e:
         if load_only:
-            raise(e)
+            raise (e)
         width_res = 130
         height_res = 100
         img = p.getCameraImage(width_res, height_res, renderer=p.ER_BULLET_HARDWARE_OPENGL)
@@ -62,6 +63,7 @@ def get_top_view_image(save=False, load_only=False):
             np.save('proj_rgb_point_robot', proj_rgb)
             np.save('proj_depth_point_robot', proj_depth)
     return proj_rgb, proj_depth
+
 
 def test_edf_evaluation(proj_rgb):
     edf_test, *_ = edf([2.0, 0.0], proj_rgb)
@@ -91,6 +93,7 @@ def test_edf_evaluation(proj_rgb):
     assert edf_gradient_x <= 0
     assert edf_gradient_y >= 0
 
+
 def initalize_environment(render):
     """
     Initializes the simulation environment.
@@ -107,7 +110,7 @@ def initalize_environment(render):
     robots = [
         GenericUrdfReacher(urdf=urdf_file, mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
@@ -115,38 +118,38 @@ def initalize_environment(render):
     pos0 = np.array([-2.0, 0.5, 0.0])
     vel0 = np.array([0.0, 0.0, 0.0])
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=[],
-            variance=0.0
+        goal_mask=["position", "weight"],
+        obstacle_mask=[],
+        variance=0.0
     )
     # Definition of the obstacle.
     static_obst_dict_1 = {
-            "type": "sphere",
-            "geometry": {"position": [2.0, 1.2, 0.0], "radius": 1.0},
+        "type": "sphere",
+        "geometry": {"position": [2.0, 1.2, 0.0], "radius": 1.0},
     }
     static_obst_dict_2 = {
-            "type": "sphere",
-            "geometry": {"position": [0.5, -0.8, 0.0], "radius": 0.4},
+        "type": "sphere",
+        "geometry": {"position": [0.5, -0.8, 0.0], "radius": 0.4},
     }
     static_obst_dict_3 = {
-            "type": "sphere",
-            "geometry": {"position": [0.0, 4.0, 0.0], "radius": 1.5},
+        "type": "sphere",
+        "geometry": {"position": [0.0, 4.0, 0.0], "radius": 1.5},
     }
     obst1 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict_1)
     obst2 = SphereObstacle(name="staticObst2", content_dict=static_obst_dict_2)
     obst3 = SphereObstacle(name="staticObst3", content_dict=static_obst_dict_3)
     # Definition of the goal.
     goal_dict = {
-            "subgoal0": {
-                "weight": 0.5,
-                "is_primary_goal": True,
-                "indices": [0, 1],
-                "parent_link" : 'world',
-                "child_link" : 'base_link',
-                "desired_position": [3.5, 0.5],
-                "epsilon" : 0.1,
-                "type": "staticSubGoal"
-            }
+        "subgoal0": {
+            "weight": 0.5,
+            "is_primary_goal": True,
+            "indices": [0, 1],
+            "parent_link": 'world',
+            "child_link": 'base_link',
+            "desired_position": [3.5, 0.5],
+            "epsilon": 0.1,
+            "type": "staticSubGoal"
+        }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     env.reset(pos=pos0, vel=vel0)
@@ -240,9 +243,8 @@ def run_point_robot_esdf(n_steps=10000, render=True):
             proj_rgb
         )
 
-        
-        edf_gradient = np.array([edf_gradient_x, edf_gradient_y, 0.0])        
-        #print(edf_gradient)
+        edf_gradient = np.array([edf_gradient_x, edf_gradient_y, 0.0])
+        # print(edf_gradient)
         action = planner.compute_action(
             q=ob_robot["joint_state"]["position"],
             qdot=ob_robot["joint_state"]["velocity"],
@@ -256,6 +258,7 @@ def run_point_robot_esdf(n_steps=10000, render=True):
         ob, *_, = env.step(action)
     env.close()
     return {}
+
 
 if __name__ == "__main__":
     res = run_point_robot_esdf(n_steps=100000, render=True)

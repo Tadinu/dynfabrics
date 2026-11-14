@@ -11,7 +11,7 @@ from urdfenvs.sensors.full_sensor import FullSensor
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 
 def initalize_environment(render=True):
@@ -24,14 +24,14 @@ def initalize_environment(render=True):
     robots = [
         GenericUrdfReacher(urdf="panda.urdf", mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=["position", "size"],
-            variance=0.0,
+        goal_mask=["position", "weight"],
+        obstacle_mask=["position", "size"],
+        variance=0.0,
     )
     # Definition of the obstacle.
     static_obst_dict = {
@@ -109,17 +109,17 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7):
         forward_kinematics,
     )
 
-    collision_links = [f"panda_link{i}" for i in range(0,8)]
+    collision_links = [f"panda_link{i}" for i in range(0, 8)]
     self_collision_pairs = {"panda_hand": ["panda_link2"]}
     panda_limits = [
-            [-2.8973, 2.8973],
-            [-1.7628, 1.7628],
-            [-2.8973, 2.8973],
-            [-3.0718, -0.0698],
-            [-2.8973, 2.8973],
-            [-0.0175, 3.7525],
-            [-2.8973, 2.8973]
-        ]
+        [-2.8973, 2.8973],
+        [-1.7628, 1.7628],
+        [-2.8973, 2.8973],
+        [-3.0718, -0.0698],
+        [-2.8973, 2.8973],
+        [-0.0175, 3.7525],
+        [-2.8973, 2.8973]
+    ]
 
     # The planner hides all the logic behind the function set_components.
     planner.set_components(

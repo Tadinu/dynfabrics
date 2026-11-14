@@ -11,7 +11,8 @@ from urdfenvs.sensors.full_sensor import FullSensor
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.dynamic_sphere_obstacle import DynamicSphereObstacle
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+
 
 # Fabrics example for a 3D point mass robot. The fabrics planner uses a 2D point
 # mass to compute actions for a simulated 3D point mass.
@@ -33,7 +34,7 @@ def initalize_environment(render):
     robots = [
         GenericUrdfReacher(urdf="pointRobot.urdf", mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
@@ -41,33 +42,33 @@ def initalize_environment(render):
     pos0 = np.array([-2.0, 0.5, 0.0])
     vel0 = np.array([0.1, 0.0, 0.0])
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=["position", "velocity", "acceleration", "size"],
-            variance=0.0,
+        goal_mask=["position", "weight"],
+        obstacle_mask=["position", "velocity", "acceleration", "size"],
+        variance=0.0,
     )
     # Definition of the obstacle.
     dynamic_obst_dict = {
-            "type": "sphere",
-            "geometry": {"trajectory": ["-1.0 * t + 5", "0.0 * t", "0.0 * t"], "radius": 0.5},
+        "type": "sphere",
+        "geometry": {"trajectory": ["-1.0 * t + 5", "0.0 * t", "0.0 * t"], "radius": 0.5},
     }
     obst1 = DynamicSphereObstacle(name="dynamicObst1", content_dict=dynamic_obst_dict)
     dynamic_obst_dict = {
-            "type": "sphere",
-            "geometry": {"trajectory": ["-0.0 * t + 2", "0.8 * t - 2.0", "0.0 * t"], "radius": 0.7},
+        "type": "sphere",
+        "geometry": {"trajectory": ["-0.0 * t + 2", "0.8 * t - 2.0", "0.0 * t"], "radius": 0.7},
     }
     obst2 = DynamicSphereObstacle(name="dynamicObst2", content_dict=dynamic_obst_dict)
     # Definition of the goal.
     goal_dict = {
-            "subgoal0": {
-                "weight": 0.5,
-                "is_primary_goal": True,
-                "indices": [0, 1],
-                "parent_link" : 'world',
-                "child_link" : 'base_link',
-                "desired_position": [3.5, 0.5],
-                "epsilon" : 0.1,
-                "type": "staticSubGoal"
-            }
+        "subgoal0": {
+            "weight": 0.5,
+            "is_primary_goal": True,
+            "indices": [0, 1],
+            "parent_link": 'world',
+            "child_link": 'base_link',
+            "desired_position": [3.5, 0.5],
+            "epsilon": 0.1,
+            "type": "staticSubGoal"
+        }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     env.reset(pos=pos0, vel=vel0)
@@ -166,6 +167,7 @@ def run_point_robot_urdf(n_steps=10000, render=True):
         ob, *_, = env.step(action)
     env.close()
     return {}
+
 
 if __name__ == "__main__":
     res = run_point_robot_urdf(n_steps=10000, render=True)

@@ -3,14 +3,16 @@ import numpy as np
 
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 from forwardkinematics.planarFks.point_fk import PointFk
+
 
 @pytest.fixture
 def planner():
     fk = PointFk()
     return ParameterizedFabricPlanner(2, fk)
+
 
 @pytest.fixture
 def goal():
@@ -29,9 +31,11 @@ def goal():
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     return goal
 
+
 def test_set_components(planner: ParameterizedFabricPlanner, goal):
     planner.set_components(collision_links=[1], goal=goal)
     planner.concretize()
+
 
 def test_compute_action(planner: ParameterizedFabricPlanner, goal):
     planner.set_components(collision_links=[1], goal=goal)

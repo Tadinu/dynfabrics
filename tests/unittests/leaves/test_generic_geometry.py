@@ -1,8 +1,8 @@
 import casadi as ca
 import pytest
 
-from fabrics.helpers.variables import Variables
-from fabrics.components.leaves.geometry import GenericGeometryLeaf
+from dynfabrics.helpers.variables import Variables
+from dynfabrics.components.leaves.geometry import GenericGeometryLeaf
 
 
 def test_geometry_generation():
@@ -34,4 +34,3 @@ def test_set_geometry(generic_geometry: GenericGeometryLeaf):
 def test_set_metric(generic_geometry: GenericGeometryLeaf):
     finsler_expression = "ca.norm_2(xdot)**2 * 1/ca.norm_2(x)"
     generic_geometry.set_finsler_structure(finsler_expression)
-

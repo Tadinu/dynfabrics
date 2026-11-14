@@ -1,13 +1,14 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.spec import Spec
-from fabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
-from fabrics.diffGeometry.geometry import Geometry
+from dynfabrics.diffGeometry.spec import Spec
+from dynfabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
+from dynfabrics.diffGeometry.geometry import Geometry
 
-from fabrics.helpers.variables import Variables
+from dynfabrics.helpers.variables import Variables
 
 Jdot_sign = -1
+
 
 @pytest.fixture
 def simple_geometry():
@@ -36,8 +37,10 @@ def dynamic_map():
     xddot_ref = ca.SX.sym("xddot_ref", 1)
     x = ca.SX.sym("x", 1)
     xdot = ca.SX.sym("x_dot", 1)
-    variables = Variables(state_variables={'x': x, 'xdot': xdot}, parameters={'x_ref': x_ref, 'xdot_ref': xdot_ref, 'xddot_ref': xddot_ref})
+    variables = Variables(state_variables={'x': x, 'xdot': xdot},
+                          parameters={'x_ref': x_ref, 'xdot_ref': xdot_ref, 'xddot_ref': xddot_ref})
     return DynamicDifferentialMap(variables)
+
 
 @pytest.fixture
 def dynamic_map_2d():
@@ -46,7 +49,8 @@ def dynamic_map_2d():
     xddot_ref = ca.SX.sym("xddot_ref", 2)
     x = ca.SX.sym("x", 2)
     xdot = ca.SX.sym("x_dot", 2)
-    variables = Variables(state_variables={'x': x, 'xdot': xdot}, parameters={'x_ref': x_ref, 'xdot_ref': xdot_ref, 'xddot_ref': xddot_ref})
+    variables = Variables(state_variables={'x': x, 'xdot': xdot},
+                          parameters={'x_ref': x_ref, 'xdot_ref': xdot_ref, 'xddot_ref': xddot_ref})
     return DynamicDifferentialMap(variables)
 
 
@@ -66,6 +70,7 @@ def test_geometry_pullback(simple_geometry, dynamic_map):
     assert h[0] == pytest.approx(h_test[0])
     assert xddot[0] == pytest.approx(-h_test[0])
 
+
 def test_spec_pullback(simple_spec, dynamic_map_2d):
     s = simple_spec
     dm = dynamic_map_2d
@@ -79,7 +84,8 @@ def test_spec_pullback(simple_spec, dynamic_map_2d):
     xddot_ref_np = np.array([0.2, 0.0])
     M, f, xddot = s_pulled.evaluate(x=x_np, xdot=xdot_np, x_ref=x_ref_np, xdot_ref=xdot_ref_np, xddot_ref=xddot_ref_np)
     M_test = np.identity(2)
-    f_test = -0.5 * np.array([1 / ((x_np[0] - x_ref_np[0]) ** 2), 1 / ((x_np[1]  - x_ref_np[1])** 2)]) - np.dot(M_test, xddot_ref_np)
+    f_test = -0.5 * np.array([1 / ((x_np[0] - x_ref_np[0]) ** 2), 1 / ((x_np[1] - x_ref_np[1]) ** 2)]) - np.dot(M_test,
+                                                                                                                xddot_ref_np)
     assert M[0, 0] == pytest.approx(M_test[0, 0])
     assert M[0, 1] == pytest.approx(M_test[0, 1])
     assert M[1, 0] == pytest.approx(M_test[1, 0])

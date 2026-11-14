@@ -15,7 +15,7 @@ from forwardkinematics.urdfFks.generic_urdf_fk import GenericURDFFk
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.non_holonomic_parameterized_planner import NonHolonomicParameterizedFabricPlanner
+from dynfabrics.planner.non_holonomic_parameterized_planner import NonHolonomicParameterizedFabricPlanner
 
 albert_model = RobotModel('albert')
 urdf_file = albert_model.get_urdf_path()
@@ -25,6 +25,7 @@ logging.basicConfig(level=logging.INFO)
 """
 Fabrics example for the boxer robot.
 """
+
 
 def initalize_environment(render):
     """
@@ -44,38 +45,38 @@ def initalize_environment(render):
             mode="acc",
             actuated_wheels=["wheel_right_joint", "wheel_left_joint"],
             castor_wheels=["rotacastor_right_joint", "rotacastor_left_joint"],
-            wheel_radius = 0.08,
-            wheel_distance = 0.494,
-            spawn_rotation = 0,
-            facing_direction = '-y',
+            wheel_radius=0.08,
+            wheel_distance=0.494,
+            spawn_rotation=0,
+            facing_direction='-y',
         ),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=['position', 'size'],
-            variance=0.0
+        goal_mask=["position", "weight"],
+        obstacle_mask=['position', 'size'],
+        variance=0.0
     )
     # Definition of the obstacle.
     static_obst_dict = {
-            "type": "sphere",
-            "geometry": {"position": [3.0, 0.0, 0.0], "radius": 1.0},
+        "type": "sphere",
+        "geometry": {"position": [3.0, 0.0, 0.0], "radius": 1.0},
     }
     obst1 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict)
-    obstacles = [obst1] # Add additional obstacles here.
+    obstacles = [obst1]  # Add additional obstacles here.
     # Definition of the goal.
     goal_dict = {
         "subgoal0": {
             "weight": 1.0,
             "is_primary_goal": True,
             "indices": [0, 1, 2],
-            "parent_link" : 'world',
-            "child_link" : 'panda_hand',
+            "parent_link": 'world',
+            "child_link": 'panda_hand',
             "desired_position": [4.0, -1.2, 1.0],
-            "epsilon" : 0.1,
+            "epsilon": 0.1,
             "type": "staticSubGoal"
         },
         "subgoal1": {
@@ -129,26 +130,26 @@ def set_planner(goal: GoalComposition):
     )
 
     planner = NonHolonomicParameterizedFabricPlanner(
-            degrees_of_freedom,
-            forward_kinematics,
-            collision_geometry=collision_geometry,
-            collision_finsler=collision_finsler,
-            l_offset="0.1/ca.norm_2(xdot)",
+        degrees_of_freedom,
+        forward_kinematics,
+        collision_geometry=collision_geometry,
+        collision_finsler=collision_finsler,
+        l_offset="0.1/ca.norm_2(xdot)",
     )
     collision_links = ["top_mount_bottom", 'panda_link1', 'panda_link4', 'panda_link6', 'panda_hand']
     self_collision_pairs = {}
     boxer_limits = [
-            [-10, 10],
-            [-10, 10],
-            [-6 * np.pi, 6 * np.pi],
-            [-2.8973, 2.8973],
-            [-1.7628, 1.7628],
-            [-2.8973, 2.8973],
-            [-3.0718, -0.0698],
-            [-2.8973, 2.8973],
-            [-0.0175, 3.7525],
-            [-2.8973, 2.8973]
-        ]
+        [-10, 10],
+        [-10, 10],
+        [-6 * np.pi, 6 * np.pi],
+        [-2.8973, 2.8973],
+        [-1.7628, 1.7628],
+        [-2.8973, 2.8973],
+        [-3.0718, -0.0698],
+        [-2.8973, 2.8973],
+        [-0.0175, 3.7525],
+        [-2.8973, 2.8973]
+    ]
     # The planner hides all the logic behind the function set_components.
     planner.set_components(
         collision_links=collision_links,
@@ -191,7 +192,7 @@ def run_albert_reacher_example(n_steps=10000, render=True):
         name = pybullet.getJointInfo(1, index)
         print(name[12])
 
-        link_position = np.array(pybullet.getLinkState(1,index)[0])
+        link_position = np.array(pybullet.getLinkState(1, index)[0])
         print(link_position)
         print(f'difference : {link_position - fk_hand}')
         qudot = np.concatenate((qudot, ob_robot['joint_state']['velocity'][3:-2]))
@@ -223,6 +224,3 @@ def run_albert_reacher_example(n_steps=10000, render=True):
 
 if __name__ == "__main__":
     res = run_albert_reacher_example(n_steps=10000, render=True)
-
-
-

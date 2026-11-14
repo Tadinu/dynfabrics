@@ -14,7 +14,7 @@ from urdfenvs.sensors.lidar import Lidar
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 from point_robot_fsd import get_obstacles_fsd, get_goal_fsd
 
@@ -22,39 +22,42 @@ logging.basicConfig(level=logging.ERROR)
 
 NUMBER_OF_RAYS = 20
 
+
 def get_goal_sensors():
     goal_dict = {
-            "subgoal0": {
-                "weight": 0.5,
-                "is_primary_goal": True,
-                "indices": [0, 1],
-                "parent_link" : 'world',
-                "child_link" : 'base_link',
-                "desired_position": [3.5, 0.5],
-                "epsilon" : 0.1,
-                "type": "staticSubGoal"
-            }
+        "subgoal0": {
+            "weight": 0.5,
+            "is_primary_goal": True,
+            "indices": [0, 1],
+            "parent_link": 'world',
+            "child_link": 'base_link',
+            "desired_position": [3.5, 0.5],
+            "epsilon": 0.1,
+            "type": "staticSubGoal"
+        }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     return goal
 
+
 def get_obstacles_sensors():
     static_obst_dict_1 = {
-            "type": "sphere",
-            "geometry": {"position": [2.0, 1.2, 0.0], "radius": 1.0},
+        "type": "sphere",
+        "geometry": {"position": [2.0, 1.2, 0.0], "radius": 1.0},
     }
     static_obst_dict_2 = {
-            "type": "sphere",
-            "geometry": {"position": [0.5, -0.8, 0.0], "radius": 0.4},
+        "type": "sphere",
+        "geometry": {"position": [0.5, -0.8, 0.0], "radius": 0.4},
     }
     static_obst_dict_3 = {
-            "type": "sphere",
-            "geometry": {"position": [0.0, 4.0, 0.0], "radius": 1.5},
+        "type": "sphere",
+        "geometry": {"position": [0.0, 4.0, 0.0], "radius": 1.5},
     }
     obst1 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict_1)
     obst2 = SphereObstacle(name="staticObst2", content_dict=static_obst_dict_2)
     obst3 = SphereObstacle(name="staticObst3", content_dict=static_obst_dict_3)
     return [obst1, obst2, obst3]
+
 
 def initalize_environment(render):
     """
@@ -71,7 +74,7 @@ def initalize_environment(render):
     robots = [
         GenericUrdfReacher(urdf="point_robot.urdf", mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
@@ -140,9 +143,11 @@ def set_planner(goal: GoalComposition):
     planner.concretize()
     return planner
 
+
 def set_lidar_runtime_arguments(robot_position, lidar_observation: np.ndarray) -> dict:
     lidar_runtime_arguments = {}
-    relative_positions = np.concatenate((np.reshape(lidar_observation, (NUMBER_OF_RAYS, 2)), np.zeros((NUMBER_OF_RAYS, 1))), axis=1)
+    relative_positions = np.concatenate(
+        (np.reshape(lidar_observation, (NUMBER_OF_RAYS, 2)), np.zeros((NUMBER_OF_RAYS, 1))), axis=1)
     absolute_ray_end_positions = relative_positions + np.repeat(robot_position[np.newaxis, :], NUMBER_OF_RAYS, axis=0)
     for ray_id in range(NUMBER_OF_RAYS):
         lidar_runtime_arguments[f'x_obst_{ray_id}'] = absolute_ray_end_positions[ray_id]
@@ -170,11 +175,11 @@ def run_point_robot_sensor(n_steps=10000, render=True):
     ob, *_ = env.step(action)
     env.reconfigure_camera(5, 0, 270.1, [0, 0, 0])
 
-
     for _ in range(n_steps):
         t0 = time.perf_counter()
         ob_robot = ob['robot_0']
-        lidar_runtime_arguments = set_lidar_runtime_arguments(ob_robot['joint_state']['position'], ob_robot['LidarSensor'])
+        lidar_runtime_arguments = set_lidar_runtime_arguments(ob_robot['joint_state']['position'],
+                                                              ob_robot['LidarSensor'])
         action = planner.compute_action(
             q=ob_robot["joint_state"]["position"],
             qdot=ob_robot["joint_state"]["velocity"],
@@ -185,8 +190,9 @@ def run_point_robot_sensor(n_steps=10000, render=True):
         )
         ob, *_, = env.step(action)
         t1 = time.perf_counter()
-        print(t1-t0)
+        print(t1 - t0)
     return {}
+
 
 if __name__ == "__main__":
     res = run_point_robot_sensor(n_steps=100000, render=True)

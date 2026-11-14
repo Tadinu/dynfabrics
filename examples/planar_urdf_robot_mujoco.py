@@ -20,7 +20,7 @@ from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 import numpy as np
 import os
 from typing_extensions import List
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 # TODO hardcoding the indices for subgoal_1 is undesired
 import sys
@@ -46,6 +46,7 @@ else:
     device = torch.device("cpu")
     print("WARNING: CPU only, this will be slow!")
 
+
 def add_mujoco_shape(env, name: str, position: List[float], size: float,
                      color: List[float] = None, shape_type: str = "sphere"):
     if not color:
@@ -58,6 +59,7 @@ def add_mujoco_shape(env, name: str, position: List[float], size: float,
         "size": str(size),
     }
     env._model_dm.worldbody.add("site", **geom_values)
+
 
 def add_sample_torus_point_cloud(env):
     points = sample_points_from_meshes(meshes=torus(3, 10, 50, 80, device),
@@ -89,7 +91,8 @@ def add_torus(env, rings, sides):
             # This vertex has index i * sides + j
             add_mujoco_shape(env, name=f"pnt{i}_{j}",
                              position=[0.1 * float(x), 0.1 * float(y), 0.1 * float(z) + 3.0],
-                             size=0.05, color=[float(phi / 2 * pi), float(np.random.random()), float(np.random.random()), 0.5])
+                             size=0.05,
+                             color=[float(phi / 2 * pi), float(np.random.random()), float(np.random.random()), 0.5])
 
 
 pt_cnt = 0
@@ -109,7 +112,8 @@ def add_toroidal_point(env, theta, phi):
     # This vertex has index i * sides + j
     add_mujoco_shape(env, name=f"pnt{pt_cnt}",
                      position=[0.1 * float(x), 0.1 * float(y), 0.1 * float(z) + 2.0],
-                     size=0.02, color=[float(np.random.random()), float(np.random.random()), float(np.random.random()), 0.5])
+                     size=0.02,
+                     color=[float(np.random.random()), float(np.random.random()), float(np.random.random()), 0.5])
 
 
 # https://en.wikipedia.org/wiki/Spherical_coordinate_system
@@ -252,7 +256,7 @@ def set_planner(goal: GoalComposition, dt: float):
         self_collision_pairs=self_collision_pairs,
         goal=goal,
         number_obstacles=2,
-        #limits=limits,
+        # limits=limits,
     )
     planner.concretize(mode=CONTROL_MODE, time_step=dt)
     return planner
@@ -280,7 +284,7 @@ def run_example(n_steps=5000, render=True):
             radius_obst_0=obstacle_size(0),
             x_obst_1=obstacle_pos(1),
             radius_obst_1=obstacle_size(1),
-            #radius_body_link1=0.2,
+            # radius_body_link1=0.2,
             radius_body_link4=0.2,
         )
         q = joint_state["position"]

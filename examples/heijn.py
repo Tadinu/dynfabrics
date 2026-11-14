@@ -11,10 +11,11 @@ from urdfenvs.sensors.full_sensor import FullSensor
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
-urdf_file = absolute_path + "/heijn_robot.urdf" 
+urdf_file = absolute_path + "/heijn_robot.urdf"
+
 
 def initalize_environment(render):
     """
@@ -39,39 +40,39 @@ def initalize_environment(render):
     pos0 = np.array([-2.0, 0.5, 0.9])
     vel0 = np.array([0.1, 0.0, 0.0])
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=['position', 'size'],
-            variance=0.0
+        goal_mask=["position", "weight"],
+        obstacle_mask=['position', 'size'],
+        variance=0.0
     )
     # Definition of the obstacle.
     static_obst_dict_1 = {
-            "type": "sphere",
-            "geometry": {"position": [2.0, 0.2, 0.0], "radius": 0.6},
+        "type": "sphere",
+        "geometry": {"position": [2.0, 0.2, 0.0], "radius": 0.6},
     }
     static_obst_dict_2 = {
-            "type": "sphere",
-            "geometry": {"position": [1.3, 2.3, 0.0], "radius": 0.8},
+        "type": "sphere",
+        "geometry": {"position": [1.3, 2.3, 0.0], "radius": 0.8},
     }
     static_obst_dict_3 = {
-            "type": "sphere",
-            "geometry": {"position": [1.0, -2.1, 0.0], "radius": 0.3},
+        "type": "sphere",
+        "geometry": {"position": [1.0, -2.1, 0.0], "radius": 0.3},
     }
     obst1 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict_1)
     obst2 = SphereObstacle(name="staticObst2", content_dict=static_obst_dict_2)
     obst3 = SphereObstacle(name="staticObst3", content_dict=static_obst_dict_3)
-    obstacles = (obst1, obst2, obst3) # Add additional obstacles here.
+    obstacles = (obst1, obst2, obst3)  # Add additional obstacles here.
     # Definition of the goal.
     goal_dict = {
-            "subgoal0": {
-                "weight": 2.5,
-                "is_primary_goal": True,
-                "indices": [0, 1],
-                "parent_link" : 'odom',
-                "child_link" : 'front_link',
-                "desired_position": [3.5, 0.5],
-                "epsilon" : 0.1,
-                "type": "staticSubGoal"
-            }
+        "subgoal0": {
+            "weight": 2.5,
+            "is_primary_goal": True,
+            "indices": [0, 1],
+            "parent_link": 'odom',
+            "child_link": 'front_link',
+            "desired_position": [3.5, 0.5],
+            "epsilon": 0.1,
+            "type": "staticSubGoal"
+        }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     env.reset(pos=pos0, vel=vel0)
@@ -188,6 +189,3 @@ def run_heijn_robot(n_steps=10000, render=True):
 
 if __name__ == "__main__":
     res = run_heijn_robot(n_steps=10000, render=True)
-
-
-

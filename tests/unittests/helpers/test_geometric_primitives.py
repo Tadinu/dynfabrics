@@ -1,16 +1,18 @@
 import casadi as ca
 import numpy as np
-from fabrics.helpers.geometric_primitives import (
+from dynfabrics.helpers.geometric_primitives import (
     Cuboid,
     Sphere,
     Capsule,
     Plane,
 )
 
+
 def test_sphere():
     sphere = Sphere('sphere_1', radius=0.1)
     assert sphere.radius == 0.1
     assert sphere.size == [0.1]
+
 
 def test_sphere_sphere_distance():
     sphere_1 = Sphere('sphere_1')
@@ -40,6 +42,7 @@ def test_cuboid():
     assert cuboid.size[2] == 0.1
     assert str(cuboid) == 'Cuboid: cuboid'
 
+
 def test_set_origin():
     capsule = Capsule('capsule', radius=1, length=0.5)
     origin = ca.SX(np.identity(4))
@@ -56,15 +59,12 @@ def test_set_origin():
     assert capsule.parameters['radius_capsule'] == 1.0
     assert capsule.parameters['length_capsule'] == 0.5
 
+
 def test_plane():
-    plane = Plane('plane', plane_equation = [0.0, 0.0, 1.0, 0.0])
+    plane = Plane('plane', plane_equation=[0.0, 0.0, 1.0, 0.0])
     assert plane.size == [0.0, 0.0, 1.0, 0.0]
     assert plane.plane_equation == [0.0, 0.0, 1.0, 0.0]
     assert 'plane' in plane.sym_size
     assert isinstance(plane.sym_size, dict)
     assert ca.is_equal(plane.sym_plane_equation, plane.sym_size['plane'])
     assert 'plane' in plane.parameters
-
-
-
-

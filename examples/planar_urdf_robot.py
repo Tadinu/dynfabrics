@@ -13,7 +13,7 @@ from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
 import numpy as np
 import os
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 # TODO hardcoding the indices for subgoal_1 is undesired
 import sys
@@ -39,6 +39,7 @@ else:
     device = torch.device("cpu")
     print("WARNING: CPU only, this will be slow!")
 
+
 def add_sample_torus_point_cloud(env):
     points = sample_points_from_meshes(meshes=torus(3, 10, 50, 80, device),
                                        num_samples=100)
@@ -54,17 +55,18 @@ def add_sample_torus_point_cloud(env):
                 })
                 env.add_obstacle(pt)
 
+
 def add_torus(env, rings, sides):
     from math import cos, pi, sin
     r = 3
     R = 10
 
-    thetas = np.linspace(0.0, 2*pi, num=rings)
+    thetas = np.linspace(0.0, 2 * pi, num=rings)
     phis = np.linspace(0.0, 2 * pi, num=sides)
 
     for i, phi in enumerate(phis):
         # phi ranges from 0 to 2 pi
-        color = [float(phi / 2*pi), float(np.random.random()), float(np.random.random()), 0.5]
+        color = [float(phi / 2 * pi), float(np.random.random()), float(np.random.random()), 0.5]
         for j, theta in enumerate(thetas):
             # theta ranges from 0 to 2 pi
             x = (R + r * cos(theta)) * cos(phi)
@@ -80,9 +82,11 @@ def add_torus(env, rings, sides):
 
 
 pt_cnt = 0
+
+
 def add_toroidal_point(env, theta, phi):
     global pt_cnt
-    pt_cnt+=1
+    pt_cnt += 1
     from math import cos, pi, sin
     r = 3
     R = 10
@@ -100,19 +104,20 @@ def add_toroidal_point(env, theta, phi):
         position=(0.1 * float(x), 0.1 * float(y), 0.1 * float(z) + 2.0)
     )
 
+
 # https://en.wikipedia.org/wiki/Spherical_coordinate_system
 # theta: zenith/polar/inclination/normal angle
 # phi: azimuthal angle
-def add_spherical_point(env, theta, phi, a=1 , b=1, c=1):
+def add_spherical_point(env, theta, phi, a=1, b=1, c=1):
     global pt_cnt
-    pt_cnt+=1
+    pt_cnt += 1
     from math import cos, pi, sin, sqrt
     R = 10
 
     color = [float(np.random.random()), float(np.random.random()), float(np.random.random()), 0.5]
-    x = (R * sin(theta) * cos(phi))/sqrt(a)
-    y = (R * sin(theta) * sin(phi))/sqrt(b)
-    z = (R * cos(phi))/sqrt(c)
+    x = (R * sin(theta) * cos(phi)) / sqrt(a)
+    y = (R * sin(theta) * sin(phi)) / sqrt(b)
+    z = (R * cos(phi)) / sqrt(c)
 
     # This vertex has index i * sides + j
     urdf_env_add_shape(
@@ -121,6 +126,7 @@ def add_spherical_point(env, theta, phi, a=1 , b=1, c=1):
         color=color,
         position=(0.1 * float(x), 0.1 * float(y), 0.1 * float(z) + 3.0)
     )
+
 
 def initalize_environment(render=True):
     """
@@ -132,14 +138,14 @@ def initalize_environment(render=True):
     robots = [
         GenericUrdfReacher(urdf="planar_urdf_2_joints.urdf", mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=["position", "size"],
-            variance=0.0,
+        goal_mask=["position", "weight"],
+        obstacle_mask=["position", "size"],
+        variance=0.0,
     )
     # Definition of the obstacle.
     static_obst_dict = {
@@ -235,16 +241,16 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 2):
     collision_links = ['link1', 'link4']
     self_collision_pairs = {}
     limits = [
-            [-2.8973, 2.8973],
-            [-1.7628, 1.7628],
-        ]
+        [-2.8973, 2.8973],
+        [-1.7628, 1.7628],
+    ]
     # The planner hides all the logic behind the function set_components.
     planner.set_components(
         collision_links=collision_links,
         self_collision_pairs=self_collision_pairs,
         goal=goal,
         number_obstacles=2,
-        #limits=limits,
+        # limits=limits,
     )
     planner.concretize()
     return planner
@@ -255,7 +261,6 @@ def run_example(n_steps=5000, render=True):
     planner = set_planner(goal)
     action = np.zeros(env.n())
     ob, *_ = env.step(action)
-
 
     for _ in range(n_steps):
         ob_robot = ob['robot_0']
@@ -268,13 +273,13 @@ def run_example(n_steps=5000, render=True):
             radius_obst_0=ob_robot['FullSensor']['obstacles'][2]['size'],
             x_obst_1=ob_robot['FullSensor']['obstacles'][3]['position'],
             radius_obst_1=ob_robot['FullSensor']['obstacles'][3]['size'],
-            #radius_body_link1=0.2,
+            # radius_body_link1=0.2,
             radius_body_link4=0.2,
         )
         q = ob_robot["joint_state"]["position"]
         ob, *_ = env.step(action)
-        #add_toroidal_point(env, q[0], q[1])
-        #add_spherical_point(env, q[0], q[1])
+        # add_toroidal_point(env, q[0], q[1])
+        # add_spherical_point(env, q[0], q[1])
     env.close()
     return {}
 

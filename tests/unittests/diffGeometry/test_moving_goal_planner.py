@@ -2,12 +2,12 @@ import pytest
 import casadi as ca
 import numpy as np
 
-from fabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
-from fabrics.diffGeometry.geometry import Geometry
+from dynfabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
+from dynfabrics.diffGeometry.geometry import Geometry
 
 from forwardkinematics.planarFks.planarArmFk import PlanarArmFk
 
-from fabrics.helpers.variables import Variables
+from dynfabrics.helpers.variables import Variables
 
 
 @pytest.fixture
@@ -26,12 +26,13 @@ def movingGoalGeometry():
     # define geometry in relative coordinates x_rel
     # where psi is defined to have its minimum at x = x_d
     k_psi = 1
-    psi = ca.norm_2(x-x_d)**2 * k_psi
+    psi = ca.norm_2(x - x_d) ** 2 * k_psi
     h_rel = ca.gradient(psi, x)
     geo_rel = Geometry(h=h_rel, var=var_x_rel)
 
     # define the relative transformation
-    variables_dynamic = Variables(state_variables={'x': x, 'xdot': xdot}, parameters={'x_ref': x_d, 'xdot_ref': xdot_d, 'xddot_ref': xddot_d})
+    variables_dynamic = Variables(state_variables={'x': x, 'xdot': xdot},
+                                  parameters={'x_ref': x_d, 'xdot_ref': xdot_d, 'xddot_ref': xddot_d})
     dm_rel = DynamicDifferentialMap(variables_dynamic)
     geo = geo_rel.dynamic_pull(dm_rel)
     # Define second transform to configuration space
@@ -68,4 +69,3 @@ def test_movingGoalGeometry(movingGoalGeometry):
     h_fk, qddot = geo_fk.evaluate(q=q_0, qdot=qdot_0, x_ref=x_d_0, xdot_ref=xdot_d_0, xddot_ref=xddot_d_0)
     assert h[0] == pytest.approx(4.0)
     assert h[1] == pytest.approx(-2.0)
-

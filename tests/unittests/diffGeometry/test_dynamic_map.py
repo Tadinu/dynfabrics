@@ -1,8 +1,8 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.helpers.variables import Variables
-from fabrics.diffGeometry.diffMap import DynamicDifferentialMap
+from dynfabrics.helpers.variables import Variables
+from dynfabrics.diffGeometry.diffMap import DynamicDifferentialMap
 
 Jdot_sign = +1
 
@@ -29,12 +29,12 @@ def test_dynamic_map_creation():
     xdot_ref_test = np.array([-0.3, 1.2])
     xddot_ref_test = np.array([0.1, 0.2])
     x_rel, xdot_rel = dm.forward(
-            x=x_test,
-            xdot=xdot_test,
-            x_ref=x_ref_test,
-            xdot_ref=xdot_ref_test,
-            xddot_ref=xddot_ref_test
-        )
+        x=x_test,
+        xdot=xdot_test,
+        x_ref=x_ref_test,
+        xdot_ref=xdot_ref_test,
+        xddot_ref=xddot_ref_test
+    )
     assert isinstance(x_rel, np.ndarray)
     assert x_rel[0] == -0.4
     assert x_rel[1] == 0.0

@@ -1,10 +1,10 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.energy import Lagrangian
-from fabrics.diffGeometry.diffMap import DynamicDifferentialMap
+from dynfabrics.diffGeometry.energy import Lagrangian
+from dynfabrics.diffGeometry.diffMap import DynamicDifferentialMap
 
-from fabrics.helpers.variables import Variables
+from dynfabrics.helpers.variables import Variables
 
 
 @pytest.fixture

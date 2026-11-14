@@ -5,17 +5,20 @@ import yaml
 
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 from forwardkinematics.planarFks.point_fk import PointFk
+
 
 def test_creation():
     fk = PointFk()
     ParameterizedFabricPlanner(2, fk)
 
+
 @pytest.fixture
 def planner():
     fk = PointFk()
     return ParameterizedFabricPlanner(2, fk)
+
 
 @pytest.fixture
 def goal():
@@ -34,9 +37,11 @@ def goal():
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     return goal
 
+
 def test_set_components(planner: ParameterizedFabricPlanner, goal: GoalComposition):
     planner.set_components(collision_links=[1], goal=goal)
     planner.concretize()
+
 
 def test_load_configuration(planner: ParameterizedFabricPlanner):
     config_file = os.path.join(os.path.dirname(__file__), "planner_config.yaml")
@@ -46,6 +51,7 @@ def test_load_configuration(planner: ParameterizedFabricPlanner):
         config_fabrics = config['fabrics']
     planner.load_fabrics_configuration(config_fabrics)
     planner.load_problem_configuration(config_problem)
+
 
 def test_compute_action(planner: ParameterizedFabricPlanner, goal: GoalComposition):
     planner.set_components(collision_links=[1], goal=goal)

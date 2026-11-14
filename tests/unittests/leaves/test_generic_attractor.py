@@ -1,8 +1,8 @@
 import casadi as ca
 import pytest
 
-from fabrics.helpers.variables import Variables
-from fabrics.components.leaves.attractor import GenericAttractor
+from dynfabrics.helpers.variables import Variables
+from dynfabrics.components.leaves.attractor import GenericAttractor
 
 
 def test_attractor_generation():

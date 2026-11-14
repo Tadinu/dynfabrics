@@ -1,4 +1,4 @@
-from fabrics.planner.serialized_planner import SerializedFabricPlanner
+from dynfabrics.planner.serialized_planner import SerializedFabricPlanner
 
 from panda_ring import run_panda_ring_example
 

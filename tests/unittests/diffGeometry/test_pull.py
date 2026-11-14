@@ -1,10 +1,10 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.spec import Spec
-from fabrics.diffGeometry.diffMap import DifferentialMap
+from dynfabrics.diffGeometry.spec import Spec
+from dynfabrics.diffGeometry.diffMap import DifferentialMap
 
-from fabrics.helpers.variables import Variables
+from dynfabrics.helpers.variables import Variables
 
 Jdot_sign = -1
 

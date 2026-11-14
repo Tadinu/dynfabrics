@@ -18,7 +18,7 @@ from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.obstacles.box_obstacle import BoxObstacle
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 CONFIG_FILE = "panda_config.yaml"
 with open(CONFIG_FILE, 'r') as config_file:
@@ -30,7 +30,6 @@ ROBOTTYPE = 'panda'
 ROBOTMODEL = 'panda_without_gripper'
 
 
-
 def initalize_environment(render=True):
     """
     Initializes the simulation environment.
@@ -39,19 +38,19 @@ def initalize_environment(render=True):
     steps the simulation once.
     """
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=['position', 'size'],
-            variance=0.0,
-            physics_engine_name='mujoco',
+        goal_mask=["position", "weight"],
+        obstacle_mask=['position', 'size'],
+        variance=0.0,
+        physics_engine_name='mujoco',
     )
-    
+
     if not os.path.exists(f'{ROBOTTYPE}_local'):
         robot_model_original = RobotModel(ROBOTTYPE, ROBOTMODEL)
         robot_model_original.copy_model(os.path.join(os.getcwd(), f'{ROBOTTYPE}_local'))
     robot_model = LocalRobotModel(f'{ROBOTTYPE}_local', ROBOTMODEL)
 
     xml_file = robot_model.get_xml_path()
-    robots  = [
+    robots = [
         GenericMujocoRobot(xml_file=xml_file, mode="vel"),
     ]
     # Definition of the obstacle.
@@ -125,7 +124,6 @@ def run_panda_example(n_steps=5000, render=True):
     action = np.zeros(7)
     ob, *_ = env.step(action)
 
-
     for _ in range(n_steps):
         ob_robot = ob['robot_0']
         all_arguments = dict(
@@ -142,7 +140,7 @@ def run_panda_example(n_steps=5000, render=True):
             x_obst_2=ob_robot['FullSensor']['obstacles'][2]['position'],
             sizes_obst_2=ob_robot['FullSensor']['obstacles'][2]['size'],
             constraint_0=np.array([0, 0, 1, 0.0]),
-            #**arguments,
+            # **arguments,
         )
         action = planner.compute_action(**all_arguments)
         ob, reward, terminated, truncated, info = env.step(action)

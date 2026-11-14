@@ -2,15 +2,16 @@ import pytest
 import casadi as ca
 from typing import Tuple
 import numpy as np
-from fabrics.diffGeometry.geometry import Geometry
-from fabrics.diffGeometry.energized_geometry import (
+from dynfabrics.diffGeometry.geometry import Geometry
+from dynfabrics.diffGeometry.energized_geometry import (
     WeightedGeometry,
 )
-from fabrics.diffGeometry.energy import FinslerStructure
-from fabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
-from fabrics.helpers.variables import Variables
+from dynfabrics.diffGeometry.energy import FinslerStructure
+from dynfabrics.diffGeometry.diffMap import DifferentialMap, DynamicDifferentialMap
+from dynfabrics.helpers.variables import Variables
 
 eps = 1e-5
+
 
 def symvar(name: str, dim: int):
     return ca.SX.sym(name, dim)
@@ -20,7 +21,7 @@ def symvar(name: str, dim: int):
 def energization_example() -> Tuple[Geometry, FinslerStructure]:
     x_rel = symvar("x_rel", 2)
     xdot_rel = symvar("xdot_rel", 2)
-    h = 0.5 / (x_rel**2) * ca.norm_2(xdot_rel) ** 2
+    h = 0.5 / (x_rel ** 2) * ca.norm_2(xdot_rel) ** 2
     var_rel = Variables(state_variables={"x_rel": x_rel, "xdot_rel": xdot_rel})
     geo = Geometry(h=h, var=var_rel)
     l = 1.3 * ca.norm_2(xdot_rel) * ca.norm_2(x_rel)

@@ -1,11 +1,11 @@
 from typing import Dict
 import pytest
-from fabrics.components.robot_representation import (
+from dynfabrics.components.robot_representation import (
     CollisionLinkDoesNotExistError,
     CollisionLinkUndefinedError,
     RobotRepresentation,
 )
-from fabrics.helpers.geometric_primitives import (
+from dynfabrics.helpers.geometric_primitives import (
     GeometricPrimitive,
     Sphere,
     Capsule,

@@ -12,41 +12,43 @@ import quaternionic
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.obstacles.box_obstacle import BoxObstacle
-from fabrics.components.energies.execution_energies import ExecutionLagrangian
+from dynfabrics.components.energies.execution_energies import ExecutionLagrangian
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
 URDF_FILE = absolute_path + "/panda_collision_links.urdf"
-CAPSULE_LINKS = list(range(2,4)) + list(range(5,9))
+CAPSULE_LINKS = list(range(2, 4)) + list(range(5, 9))
 # TODO: BUG: Crashesh when all capsule links are used because Jdot becomes nan.
 # This is probably related to phi being not differentiable at the position.
 CAPSULE_LINKS = [2, 3, 5, 7, 8]
 
+
 def setup_collision_links_panda(i) -> Tuple[np.ndarray, str, int, float, float]:
     link_translations = [
-            np.array([0.0, 0.0, -0.1915]),
-            np.array([0.0, 0.0, 0.0]),
-            np.array([0.0, 0.0, -0.145]),
-            np.array([0.0, 0.0, 0.0]),
-            np.array([0.0, 0.0, -0.26]),
-            np.array([0, 0.08, -0.13]),
-            np.array([0, 0.0, -0.03]),
-            np.array([0, 0.0, 0.01]),
-            np.array([0.0424, 0.0424, -0.0250]),
+        np.array([0.0, 0.0, -0.1915]),
+        np.array([0.0, 0.0, 0.0]),
+        np.array([0.0, 0.0, -0.145]),
+        np.array([0.0, 0.0, 0.0]),
+        np.array([0.0, 0.0, -0.26]),
+        np.array([0, 0.08, -0.13]),
+        np.array([0, 0.0, -0.03]),
+        np.array([0, 0.0, 0.01]),
+        np.array([0.0424, 0.0424, -0.0250]),
     ]
     link_rotations = [np.identity(3)] * 9
     link_rotations[8] = np.array([[0, 0, -1], [-1, 0, 0], [0, 1, 0]])
     links = [0, 1, 2, 3, 4, 4, 5, 6, 7]
-    link_names = [f"panda_link{link_id+1}" for link_id in links]
+    link_names = [f"panda_link{link_id + 1}" for link_id in links]
     lengths = [0.2830, 0.12, 0.15, 0.12, 0.1, 0.14, 0.08, 0.14, 0.01]
     radii = [0.09, 0.09, 0.09, 0.09, 0.09, 0.055, 0.08, 0.07, 0.06]
     tf = np.identity(4)
-    tf[0:3,0:3] = link_rotations[i]
+    tf[0:3, 0:3] = link_rotations[i]
     tf[0:3, 3] = link_translations[i]
     return (tf, link_names[i], links[i], radii[i], lengths[i])
 
-def initalize_environment(render=True, obstacle_resolution = 8):
+
+def initalize_environment(render=True, obstacle_resolution=8):
     """
     Initializes the simulation environment.
 
@@ -56,14 +58,14 @@ def initalize_environment(render=True, obstacle_resolution = 8):
     robots = [
         GenericUrdfReacher(urdf=URDF_FILE, mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=["position", "size"],
-            variance=0.0,
+        goal_mask=["position", "weight"],
+        obstacle_mask=["position", "size"],
+        variance=0.0,
     )
     q0 = np.array([0.0, -1.0, 0.0, -1.501, 0.0, 1.8675, 0.0])
     # Definition of the obstacle.
@@ -78,7 +80,7 @@ def initalize_environment(render=True, obstacle_resolution = 8):
     obst1 = SphereObstacle(name="staticObst", content_dict=static_obst_dict)
     obstacles = [obst1]
     for i in range(obstacle_resolution + 1):
-        angle = i/obstacle_resolution * 2.*np.pi
+        angle = i / obstacle_resolution * 2. * np.pi
         origin_position = [
             0.0,
             radius_ring * np.cos(angle),
@@ -114,7 +116,6 @@ def initalize_environment(render=True, obstacle_resolution = 8):
     return (env, goal)
 
 
-
 def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7, obstacle_resolution: int = 10):
     """
     Initializes the fabric planner for the panda robot.
@@ -147,9 +148,9 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7, obstacle_res
 
     for i in CAPSULE_LINKS:
         tf, link_name, _, _, length = setup_collision_links_panda(i)
-        tf_capsule_origin =  forward_kinematics.casadi(
+        tf_capsule_origin = forward_kinematics.casadi(
             q, link_name, link_transformation=tf,
-        ) 
+        )
         planner.add_capsule_sphere_geometry(
             "obst_1", f"capsule_{i}", tf_capsule_origin, length
         )
@@ -158,14 +159,14 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7, obstacle_res
         )
 
     panda_limits = [
-            [-2.8973, 2.8973],
-            [-1.7628, 1.7628],
-            [-2.8973, 2.8973],
-            [-3.0718, -0.0698],
-            [-2.8973, 2.8973],
-            [-0.0175, 3.7525],
-            [-2.8973, 2.8973]
-        ]
+        [-2.8973, 2.8973],
+        [-1.7628, 1.7628],
+        [-2.8973, 2.8973],
+        [-3.0718, -0.0698],
+        [-2.8973, 2.8973],
+        [-0.0175, 3.7525],
+        [-2.8973, 2.8973]
+    ]
     planner.set_goal_component(goal)
     execution_energy = ExecutionLagrangian(planner.variables)
     planner.set_execution_energy(execution_energy)
@@ -192,11 +193,11 @@ def run_panda_capsule_cuboid_example(n_steps=5000, render=True):
     for i in CAPSULE_LINKS:
         tf, _, link_id, radius, length = setup_collision_links_panda(i)
         env.add_collision_link(
-                robot_index=0,
-                link_index=link_id,
-                shape_type="capsule",
-                size=[radius, length],
-                link_transformation=tf,
+            robot_index=0,
+            link_index=link_id,
+            shape_type="capsule",
+            size=[radius, length],
+            link_transformation=tf,
         )
         static_args[f"radius_capsule_{i}"] = radius
 
@@ -204,10 +205,11 @@ def run_panda_capsule_cuboid_example(n_steps=5000, render=True):
         ob_robot = ob["robot_0"]
         ind_goal = list(ob_robot["FullSensor"]["goals"].keys())[0]
         x_obsts_cuboids = [
-            ob_robot['FullSensor']['obstacles'][i+2+nr_obstacles_sphere]['position'] for i in range(nr_obstacles_cuboid)
+            ob_robot['FullSensor']['obstacles'][i + 2 + nr_obstacles_sphere]['position'] for i in
+            range(nr_obstacles_cuboid)
         ]
         size_obsts_cuboids = [
-            ob_robot['FullSensor']['obstacles'][i+2+nr_obstacles_sphere]['size'] for i in range(nr_obstacles_cuboid)
+            ob_robot['FullSensor']['obstacles'][i + 2 + nr_obstacles_sphere]['size'] for i in range(nr_obstacles_cuboid)
         ]
         args = dict(
             q=ob_robot["joint_state"]["position"],

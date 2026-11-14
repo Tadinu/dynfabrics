@@ -1,12 +1,12 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.geometry import Geometry
-from fabrics.diffGeometry.energy import Lagrangian
-from fabrics.diffGeometry.energized_geometry import WeightedGeometry
-from fabrics.diffGeometry.diffMap import DynamicDifferentialMap
+from dynfabrics.diffGeometry.geometry import Geometry
+from dynfabrics.diffGeometry.energy import Lagrangian
+from dynfabrics.diffGeometry.energized_geometry import WeightedGeometry
+from dynfabrics.diffGeometry.diffMap import DynamicDifferentialMap
 
-from fabrics.helpers.variables import Variables
+from dynfabrics.helpers.variables import Variables
 
 
 @pytest.fixture
@@ -26,7 +26,8 @@ def relative_map():
     q_p = ca.SX.sym("q_p", 1)
     qdot_p = ca.SX.sym("qdot_p", 1)
     qddot_p = ca.SX.sym("qddot_p", 1)
-    variables = Variables(state_variables={'q': q, 'qdot': qdot}, parameters= {'x_ref': q_p, 'xdot_ref': qdot_p, 'xddot_ref': qddot_p})
+    variables = Variables(state_variables={'q': q, 'qdot': qdot},
+                          parameters={'x_ref': q_p, 'xdot_ref': qdot_p, 'xddot_ref': qddot_p})
     # Mapping from q_rel, q_ref -> q
     dm_rel = DynamicDifferentialMap(variables)
     # Lagrangian in q_rel
@@ -36,6 +37,7 @@ def relative_map():
     variables_rel = Variables(state_variables={'q_rel': q_rel, 'qdot_rel': qdot_rel})
     lag_rel = Lagrangian(l_rel, var=variables_rel)
     return dm_rel, lag_rel
+
 
 @pytest.fixture
 def relative_weighted_geometry(relative_map):
@@ -48,10 +50,11 @@ def relative_weighted_geometry(relative_map):
     dm, lag_rel = relative_map
     q = dm.q()
     qdot = dm.qdot()
-    h_geo = 1/(q**2) * (qdot**2)
+    h_geo = 1 / (q ** 2) * (qdot ** 2)
     geo_variables = Variables(state_variables=dm.state_variables())
     geo = Geometry(h=h_geo, var=geo_variables)
     return dm, lag_rel, geo
+
 
 def test_relative_lagrangian(relative_map):
     dm_rel, lag_rel = relative_map
@@ -72,11 +75,12 @@ def test_relative_lagrangian(relative_map):
     assert M_rel == pytest.approx(M)
     assert f == pytest.approx(f_test, rel=1e-4)
 
+
 def test_weighted_geometry(relative_weighted_geometry):
     dm_rel, lag_rel, geo = relative_weighted_geometry
     lag_pull = lag_rel.dynamic_pull(dm_rel)
     # Weighting the geometry with the pulled realtive Lagrangian.
-    eg = WeightedGeometry(g=geo,le=lag_pull) 
+    eg = WeightedGeometry(g=geo, le=lag_pull)
     # Concretize everything
     dm_rel.concretize()
     lag_rel.concretize()
@@ -96,7 +100,7 @@ def test_weighted_geometry(relative_weighted_geometry):
     assert M_rel[0, 0] == pytest.approx(M_pull[0, 0])
     f_test = f_rel - np.dot(M_rel, qddot_p)
     assert f_pull[0] == pytest.approx(f_test, rel=1e-5)
-    frac_test = -1/(np.dot(qdot_rel, np.dot(M_rel, qdot_rel)))
+    frac_test = -1 / (np.dot(qdot_rel, np.dot(M_rel, qdot_rel)))
     alpha_test = frac_test * np.dot(qdot_rel, np.dot(M_rel, h + qddot_p) - f_rel)
     M_eg, f_eg, l_eg, alpha_eg = eg.evaluate(q=q, qdot=qdot, x_ref=q_p, xdot_ref=qdot_p, xddot_ref=qddot_p)
     assert alpha_eg == pytest.approx(alpha_test, rel=1e-4)

@@ -1,9 +1,9 @@
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.diffMap import DynamicDifferentialMap
-from fabrics.helpers.variables import Variables
-from fabrics.components.leaves.dynamic_leaf import DynamicLeaf
-from fabrics.components.leaves.leaf import Leaf
+from dynfabrics.diffGeometry.diffMap import DynamicDifferentialMap
+from dynfabrics.helpers.variables import Variables
+from dynfabrics.components.leaves.dynamic_leaf import DynamicLeaf
+from dynfabrics.components.leaves.leaf import Leaf
 
 
 def test_dynamic_leaf_generation():
@@ -16,6 +16,7 @@ def test_dynamic_leaf_generation():
     dynamic_leaf = DynamicLeaf(root_variables, "dynamic_leaf", phi_leaf, dim=2)
     dynamic_map = dynamic_leaf.dynamic_map()
     assert isinstance(dynamic_map, DynamicDifferentialMap)
+
 
 def test_leaf_generation():
     q = ca.SX.sym("q", 2)
@@ -30,11 +31,3 @@ def test_leaf_generation():
     static_leaf.concretize()
     leaf_eval = static_leaf.evaluate(q=np.array([0.1, 0.1]), qdot=np.array([0.3, -0.7]))
     assert leaf_eval['x'][0] == 0.1
-
-
-
-
-
-
-
-

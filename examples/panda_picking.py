@@ -14,8 +14,8 @@ from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
 import numpy as np
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
-from fabrics.helpers.functions import get_rotation_matrix
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.helpers.functions import get_rotation_matrix
 
 URDF_FILE = os.path.dirname(os.path.abspath(__file__)) + "/panda_with_finger.urdf"
 GRIPPER_ACTION = 0
@@ -42,8 +42,6 @@ def key_press_callback(e):
         pass
 
 
-
-
 def create_scene() -> List[CollisionObstacle]:
     table_dict = {
         "type": "box",
@@ -68,10 +66,11 @@ def create_scene() -> List[CollisionObstacle]:
     object_obstacle = BoxObstacle(name="table", content_dict=object_dict)
     return [obst_1, object_obstacle]
 
+
 def create_dummy_goal() -> GoalComposition:
     goal_orientation = [-0.366, 0.0, 0.0, 0.3305]
     whole_position = [0.1, 0.6, 0.8]
-    angle = np.pi/2 * 1
+    angle = np.pi / 2 * 1
     rot_matrix = get_rotation_matrix(angle, axis='y')
     goal_1 = np.array([0.107, 0, 0])
     goal_1 = np.dot(rot_matrix, goal_1)
@@ -100,7 +99,7 @@ def create_dummy_goal() -> GoalComposition:
             "weight": 3.0,
             "is_primary_goal": False,
             "indices": [6],
-            "desired_position": [np.pi/4],
+            "desired_position": [np.pi / 4],
             "epsilon": 0.05,
             "type": "staticJointSpaceSubGoal",
         }
@@ -118,14 +117,14 @@ def initalize_environment(render=True):
     robots = [
         GenericUrdfReacher(urdf=URDF_FILE, mode="vel"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=[],
-            obstacle_mask=["position", "size"],
-            variance=0.0,
+        goal_mask=[],
+        obstacle_mask=["position", "size"],
+        variance=0.0,
     )
     # Definition of the obstacle.
     obstacles = create_scene()
@@ -166,14 +165,14 @@ def set_planner(degrees_of_freedom: int = 7):
     )
     collision_links = ["panda_hand", "panda_link3", "panda_link4"]
     panda_limits = [
-            [-2.8973, 2.8973],
-            [-1.7628, 1.7628],
-            [-2.8973, 2.8973],
-            [-3.0718, -0.0698],
-            [-2.8973, 2.8973],
-            [-0.0175, 3.7525],
-            [-2.8973, 2.8973]
-        ]
+        [-2.8973, 2.8973],
+        [-1.7628, 1.7628],
+        [-2.8973, 2.8973],
+        [-3.0718, -0.0698],
+        [-2.8973, 2.8973],
+        [-0.0175, 3.7525],
+        [-2.8973, 2.8973]
+    ]
     # The planner hides all the logic behind the function set_components.
     planner.set_components(
         collision_links=collision_links,
@@ -199,16 +198,15 @@ def run_panda_example(n_steps=5000, render=True):
     print("Press 'd' to go to the object again.")
 
     env.reconfigure_camera(1.4, 85.0, -25.0, (0.0, 0.0, 0.0))
-    angle = np.pi/2 * 1
+    angle = np.pi / 2 * 1
     rot_matrix = get_rotation_matrix(angle, axis='y')
     goal_1 = np.array([0.107, 0, 0])
     goal_1 = np.dot(rot_matrix, goal_1)
 
-
     for _ in range(n_steps):
         ob_robot = ob['robot_0']
-        q=ob_robot["joint_state"]["position"][0:7]
-        qdot=ob_robot["joint_state"]["velocity"][0:7]
+        q = ob_robot["joint_state"]["position"][0:7]
+        qdot = ob_robot["joint_state"]["velocity"][0:7]
         object_position = ob_robot['FullSensor']['obstacles'][3]['position']
         object_position[2] += 0.1
         if GO_UP:
@@ -216,11 +214,11 @@ def run_panda_example(n_steps=5000, render=True):
         action[0:7] = planner.compute_action(
             q=q,
             qdot=qdot,
-            x_goal_0 = np.array(object_position),
+            x_goal_0=np.array(object_position),
             weight_goal_0=0.7,
-            x_goal_1 = goal_1,
+            x_goal_1=goal_1,
             weight_goal_1=6.0,
-            x_goal_2 = np.array([np.pi/4]),
+            x_goal_2=np.array([np.pi / 4]),
             weight_goal_2=6.0,
             radius_body_panda_link3=np.array([0.02]),
             radius_body_panda_link4=np.array([0.02]),
@@ -228,10 +226,10 @@ def run_panda_example(n_steps=5000, render=True):
         )
         distance_to_full_opening = np.linalg.norm(q[-2:] - np.array([0.04, 0.04]))
         distance_to_full_closing = np.linalg.norm(q[-2:] - np.array([0.00, 0.00]))
-        if GRIPPER_ACTION == 0:# and distance_to_full_opening > 0.01:
+        if GRIPPER_ACTION == 0:  # and distance_to_full_opening > 0.01:
 
             action[7:] = np.ones(2) * 0.05
-        elif GRIPPER_ACTION == 1:# and distance_to_full_closing > 0.01:
+        elif GRIPPER_ACTION == 1:  # and distance_to_full_closing > 0.01:
             action[7:] = np.ones(2) * -0.05
         else:
             action[7:] = np.zeros(2)

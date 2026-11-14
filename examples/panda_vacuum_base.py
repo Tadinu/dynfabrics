@@ -11,8 +11,8 @@ from urdfenvs.sensors.full_sensor import FullSensor
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
-from fabrics.helpers.functions import get_rotation_matrix
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.helpers.functions import get_rotation_matrix
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
 URDF_FILE = absolute_path + "/panda_vacuum_base.urdf"
@@ -28,14 +28,14 @@ def initalize_environment(render=True):
     robots = [
         GenericUrdfReacher(urdf=URDF_FILE, mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=['position', 'size'],
-            variance=0.0
+        goal_mask=["position", "weight"],
+        obstacle_mask=['position', 'size'],
+        variance=0.0
     )
     # Definition of the obstacle.
     static_obst_dict = {
@@ -49,7 +49,7 @@ def initalize_environment(render=True):
     }
     obst2 = SphereObstacle(name="staticObst", content_dict=static_obst_dict)
     # Definition of the goal.
-    angle = np.pi/2 * 2
+    angle = np.pi / 2 * 2
     rot_matrix = get_rotation_matrix(angle, axis='z')
     goal_1 = np.array([0, 0.055, 0])
     goal_2 = np.array([0.185, 0, 0])
@@ -140,7 +140,7 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 8):
     forward_kinematics = GenericURDFFk(
         urdf,
         root_link="base_link",
-        end_links=["vacuum1_link" , "vacuum2_link", "vacuum_support_link"],
+        end_links=["vacuum1_link", "vacuum2_link", "vacuum_support_link"],
     )
     planner = ParameterizedFabricPlanner(
         degrees_of_freedom,
@@ -148,21 +148,21 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 8):
     )
     collision_links = ['panda_link7', 'panda_link3', 'panda_link4']
     panda_limits = [
-            [-2.8973, 2.8973],
-            [-1.7628, 1.7628],
-            [-2.8973, 2.8973],
-            [-3.0718, -0.0698],
-            [-2.8973, 2.8973],
-            [-0.0175, 3.7525],
-            [-2.8973, 2.8973]
-        ]
+        [-2.8973, 2.8973],
+        [-1.7628, 1.7628],
+        [-2.8973, 2.8973],
+        [-3.0718, -0.0698],
+        [-2.8973, 2.8973],
+        [-0.0175, 3.7525],
+        [-2.8973, 2.8973]
+    ]
     # The planner hides all the logic behind the function set_components.
     planner.set_components(
         collision_links=collision_links,
         goal=goal,
         number_obstacles=0,
         number_plane_constraints=0,
-        #limits=panda_limits,
+        # limits=panda_limits,
     )
     planner.concretize()
     return planner
@@ -183,7 +183,6 @@ def run_panda_example(n_steps=5000, render=True):
     env.add_collision_link(0, 4, shape_type='sphere', size=[0.10])
     env.add_collision_link(0, 7, shape_type='sphere', size=[0.10])
 
-
     for _ in range(n_steps):
         ob_robot = ob['robot_0']
         args = dict(
@@ -199,7 +198,7 @@ def run_panda_example(n_steps=5000, render=True):
             radius_obst_0=ob_robot['FullSensor']['obstacles'][2]['size'],
             x_obst_1=ob_robot['FullSensor']['obstacles'][3]['position'],
             radius_obst_1=ob_robot['FullSensor']['obstacles'][3]['size'],
-            #radius_body_links={3: 0.1, 4: 0.1, 7: 0.1},
+            # radius_body_links={3: 0.1, 4: 0.1, 7: 0.1},
             constraint_0=np.array([0, 0, 1, 0.0]),
         )
         action = planner.compute_action(**args)

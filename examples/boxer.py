@@ -13,7 +13,7 @@ from urdfenvs.urdf_common.urdf_env import UrdfEnv
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.non_holonomic_parameterized_planner import NonHolonomicParameterizedFabricPlanner
+from dynfabrics.planner.non_holonomic_parameterized_planner import NonHolonomicParameterizedFabricPlanner
 
 logging.basicConfig(level=logging.INFO)
 """
@@ -22,6 +22,7 @@ Fabrics example for the boxer robot.
 
 boxer_model = RobotModel('boxer')
 urdf_file = boxer_model.get_urdf_path()
+
 
 def initalize_environment(render):
     """
@@ -41,40 +42,40 @@ def initalize_environment(render):
             mode="acc",
             actuated_wheels=["wheel_right_joint", "wheel_left_joint"],
             castor_wheels=["rotacastor_right_joint", "rotacastor_left_joint"],
-            wheel_radius = 0.08,
-            wheel_distance = 0.494,
+            wheel_radius=0.08,
+            wheel_distance=0.494,
             spawn_rotation=0.0,
             facing_direction='-y',
         ),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=['position', 'size'],
-            variance=0.0,
+        goal_mask=["position", "weight"],
+        obstacle_mask=['position', 'size'],
+        variance=0.0,
     )
     # Definition of the obstacle.
     static_obst_dict = {
-            "type": "sphere",
-            "geometry": {"position": [-0.3, -4.0, 0.0], "radius": 1.0},
+        "type": "sphere",
+        "geometry": {"position": [-0.3, -4.0, 0.0], "radius": 1.0},
     }
     obst1 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict)
-    obstacles = [obst1] # Add additional obstacles here.
+    obstacles = [obst1]  # Add additional obstacles here.
     # Definition of the goal.
     goal_dict = {
-            "subgoal0": {
-                "weight": 1.0,
-                "is_primary_goal": True,
-                "indices": [0, 1],
-                "parent_link" : 'origin',
-                "child_link" : 'ee_link',
-                "desired_position": [0.0, -6.0],
-                "epsilon" : 0.1,
-                "type": "staticSubGoal"
-            }
+        "subgoal0": {
+            "weight": 1.0,
+            "is_primary_goal": True,
+            "indices": [0, 1],
+            "parent_link": 'origin',
+            "child_link": 'ee_link',
+            "desired_position": [0.0, -6.0],
+            "epsilon": 0.1,
+            "type": "staticSubGoal"
+        }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
 
@@ -88,7 +89,6 @@ def initalize_environment(render):
         env.add_goal(sub_goal)
     env.set_spaces()
     return (env, goal)
-
 
 
 def set_planner(goal: GoalComposition):
@@ -120,11 +120,11 @@ def set_planner(goal: GoalComposition):
         base_type="diffdrive",
     )
     planner = NonHolonomicParameterizedFabricPlanner(
-            degrees_of_freedom,
-            forward_kinematics,
-            collision_geometry=collision_geometry,
-            collision_finsler=collision_finsler,
-            l_offset="0.1/ca.norm_2(xdot)",
+        degrees_of_freedom,
+        forward_kinematics,
+        collision_geometry=collision_geometry,
+        collision_finsler=collision_finsler,
+        l_offset="0.1/ca.norm_2(xdot)",
     )
     collision_links = ["ee_link"]
     self_collision_links = {}
@@ -153,7 +153,8 @@ def run_boxer_example(n_steps=10000, render=True):
     planner = set_planner(goal)
     action = np.zeros(7)
     ob, *_ = env.step(action)
-    env.reconfigure_camera(3.000001907348633, -90.00001525878906, -94.20011138916016, (0.15715950727462769, -2.938774585723877, -0.02000000700354576))
+    env.reconfigure_camera(3.000001907348633, -90.00001525878906, -94.20011138916016,
+                           (0.15715950727462769, -2.938774585723877, -0.02000000700354576))
 
     for _ in range(n_steps):
         ob_robot = ob['robot_0']
@@ -182,6 +183,3 @@ def run_boxer_example(n_steps=10000, render=True):
 
 if __name__ == "__main__":
     res = run_boxer_example(n_steps=10000, render=True)
-
-
-

@@ -1,11 +1,11 @@
 import pytest
 import casadi as ca
 import numpy as np
-from fabrics.diffGeometry.geometry import Geometry
-from fabrics.diffGeometry.energized_geometry import WeightedGeometry
-from fabrics.diffGeometry.energy import FinslerStructure
+from dynfabrics.diffGeometry.geometry import Geometry
+from dynfabrics.diffGeometry.energized_geometry import WeightedGeometry
+from dynfabrics.diffGeometry.energy import FinslerStructure
 
-from fabrics.helpers.variables import Variables
+from dynfabrics.helpers.variables import Variables
 
 """
 Testing speed control.

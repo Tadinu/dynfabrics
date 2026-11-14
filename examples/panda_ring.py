@@ -10,16 +10,17 @@ from urdfenvs.sensors.full_sensor import FullSensor
 
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
-from fabrics.helpers.functions import get_rotation_matrix
+from dynfabrics.helpers.functions import get_rotation_matrix
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 # TODO: Angle cannot be read through the FullSensor
 
 absolute_path = os.path.dirname(os.path.abspath(__file__))
 URDF_FILE = absolute_path + "/panda_vacuum.urdf"
 
-def initalize_environment(render=True, obstacle_resolution = 8):
+
+def initalize_environment(render=True, obstacle_resolution=8):
     """
     Initializes the simulation environment.
 
@@ -29,28 +30,28 @@ def initalize_environment(render=True, obstacle_resolution = 8):
     robots = [
         GenericUrdfReacher(urdf=URDF_FILE, mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=["position", "size"],
-            variance=0.0,
+        goal_mask=["position", "weight"],
+        obstacle_mask=["position", "size"],
+        variance=0.0,
     )
     q0 = np.array([0.0, -1.0, 0.0, -1.501, 0.0, 1.8675, 0.0])
     # Definition of the obstacle.
     radius_ring = 0.3
     obstacles = []
-    angle_z = np.pi/4 * 1
-    angle_x = np.pi/12
+    angle_z = np.pi / 4 * 1
+    angle_x = np.pi / 12
     rotation_matrix_z = get_rotation_matrix(angle_z, axis="z")
     rotation_matrix_x = get_rotation_matrix(angle_x, axis="x")
     rotation_matrix = np.dot(rotation_matrix_z, rotation_matrix_x)
 
     whole_position = [0.1, 0.6, 0.8]
     for i in range(obstacle_resolution + 1):
-        angle = i/obstacle_resolution * 2.*np.pi
+        angle = i / obstacle_resolution * 2. * np.pi
         origin_position = [
             0.0,
             radius_ring * np.cos(angle),
@@ -98,7 +99,7 @@ def initalize_environment(render=True, obstacle_resolution = 8):
     return (env, goal)
 
 
-def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7, obstacle_resolution = 10):
+def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7, obstacle_resolution=10):
     """
     Initializes the fabric planner for the panda robot.
 
@@ -115,7 +116,6 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7, obstacle_res
     degrees_of_freedom: int
         Degrees of freedom of the robot (default = 7)
     """
-
 
     ## Optional reconfiguration of the planner
     # base_inertia = 0.03
@@ -151,14 +151,14 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7, obstacle_res
         forward_kinematics,
     )
     panda_limits = [
-            [-2.8973, 2.8973],
-            [-1.7628, 1.7628],
-            [-2.8973, 2.8973],
-            [-3.0718, -0.0698],
-            [-2.8973, 2.8973],
-            [-0.0175, 3.7525],
-            [-2.8973, 2.8973]
-        ]
+        [-2.8973, 2.8973],
+        [-1.7628, 1.7628],
+        [-2.8973, 2.8973],
+        [-3.0718, -0.0698],
+        [-2.8973, 2.8973],
+        [-0.0175, 3.7525],
+        [-2.8973, 2.8973]
+    ]
     collision_links = ['panda_link4', 'panda_link6', 'vacuum_link']
     self_collision_pairs = {}
     # The planner hides all the logic behind the function set_components.
@@ -181,32 +181,32 @@ def run_panda_ring_example(n_steps=5000, render=True, serialize=False, planner=N
     )
     action = np.zeros(7)
     ob, *_ = env.step(action)
-    env.reconfigure_camera(1.4000000953674316, 67.9999008178711, -31.0001220703125, (-0.4589785635471344, 0.23635289072990417, 0.3541859984397888))
+    env.reconfigure_camera(1.4000000953674316, 67.9999008178711, -31.0001220703125,
+                           (-0.4589785635471344, 0.23635289072990417, 0.3541859984397888))
 
     if not planner:
-        planner = set_planner(goal, obstacle_resolution = obstacle_resolution_ring)
+        planner = set_planner(goal, obstacle_resolution=obstacle_resolution_ring)
         # Serializing the planner is optional
         if serialize:
             planner.serialize('serialized_10.pbz2')
 
-
     for _ in range(n_steps):
         ob_robot = ob['robot_0']
         x_obsts = [
-            ob_robot['FullSensor']['obstacles'][i+2]['position'] for i in range(obstacle_resolution_ring)
+            ob_robot['FullSensor']['obstacles'][i + 2]['position'] for i in range(obstacle_resolution_ring)
         ]
         radius_obsts = [
-            ob_robot['FullSensor']['obstacles'][i+2]['size'] for i in range(obstacle_resolution_ring)
+            ob_robot['FullSensor']['obstacles'][i + 2]['size'] for i in range(obstacle_resolution_ring)
         ]
         action = planner.compute_action(
             q=ob_robot["joint_state"]["position"],
             qdot=ob_robot["joint_state"]["velocity"],
             x_obsts=x_obsts,
             radius_obsts=radius_obsts,
-            x_goal_0=ob_robot["FullSensor"]["goals"][obstacle_resolution_ring+3]["position"],
-            weight_goal_0=ob_robot["FullSensor"]["goals"][obstacle_resolution_ring+3]["weight"],
-            x_goal_1=ob_robot["FullSensor"]["goals"][obstacle_resolution_ring+4]["position"],
-            weight_goal_1=ob_robot["FullSensor"]["goals"][obstacle_resolution_ring+4]["weight"],
+            x_goal_0=ob_robot["FullSensor"]["goals"][obstacle_resolution_ring + 3]["position"],
+            weight_goal_0=ob_robot["FullSensor"]["goals"][obstacle_resolution_ring + 3]["weight"],
+            x_goal_1=ob_robot["FullSensor"]["goals"][obstacle_resolution_ring + 4]["position"],
+            weight_goal_1=ob_robot["FullSensor"]["goals"][obstacle_resolution_ring + 4]["weight"],
             radius_body_panda_link4=0.1,
             radius_body_panda_link6=0.15,
             radius_body_vacuum_link=0.1,
@@ -217,4 +217,4 @@ def run_panda_ring_example(n_steps=5000, render=True, serialize=False, planner=N
 
 
 if __name__ == "__main__":
-    res = run_panda_ring_example(n_steps=10000, serialize = True)
+    res = run_panda_ring_example(n_steps=10000, serialize=True)

@@ -10,7 +10,8 @@ from urdfenvs.robots.generic_urdf import GenericUrdfReacher
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+
 
 def initalize_environment(render):
     """
@@ -27,7 +28,7 @@ def initalize_environment(render):
     robots = [
         GenericUrdfReacher(urdf="pointRobot.urdf", mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
@@ -37,32 +38,32 @@ def initalize_environment(render):
     env.reset(pos=pos0, vel=vel0)
     # Definition of the obstacle.
     static_obst_dict = {
-            "type": "sphere",
-            "geometry": {"position": [2.0, 1.0, 0.0], "radius": 0.6},
+        "type": "sphere",
+        "geometry": {"position": [2.0, 1.0, 0.0], "radius": 0.6},
     }
     obst1 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict)
     static_obst_dict = {
-            "type": "sphere",
-            "geometry": {"position": [2.0, -1.0, 0.0], "radius": 0.6},
+        "type": "sphere",
+        "geometry": {"position": [2.0, -1.0, 0.0], "radius": 0.6},
     }
     obst2 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict)
-    obstacles = (obst1, obst2) # Add additional obstacles here.
+    obstacles = (obst1, obst2)  # Add additional obstacles here.
     # Definition of the goal.
     goal_dict = {
-            "subgoal0": {
-                "weight": 0.5,
-                "is_primary_goal": True,
-                "indices": [0, 1],
-                "parent_link" : "world",
-                "child_link" : "base_link",
-                "desired_position": [4.5, 0.0],
-                "epsilon" : 0.1,
-                "type": "staticSubGoal"
-            }
+        "subgoal0": {
+            "weight": 0.5,
+            "is_primary_goal": True,
+            "indices": [0, 1],
+            "parent_link": "world",
+            "child_link": "base_link",
+            "desired_position": [4.5, 0.0],
+            "epsilon": 0.1,
+            "type": "staticSubGoal"
+        }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     # Add walls, the goal and the obstacle to the environment.
-    #env.add_walls([0.1, 10, 0.5], [[5.0, 0, 0], [-5.0, 0.0, 0.0], [0.0, 5.0, np.pi/2], [0.0, -5.0, np.pi/2]])
+    # env.add_walls([0.1, 10, 0.5], [[5.0, 0, 0], [-5.0, 0.0, 0.0], [0.0, 5.0, np.pi/2], [0.0, -5.0, np.pi/2]])
     env.add_goal(goal)
     for obst in obstacles:
         env.add_obstacle(obst)
@@ -161,7 +162,5 @@ def run_point_robot_urdf(n_steps=10000, render=True):
 
 if __name__ == "__main__":
     import sys
+
     res = run_point_robot_urdf(n_steps=6000, render=bool(int(sys.argv[1])))
-
-
-

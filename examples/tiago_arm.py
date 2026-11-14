@@ -13,8 +13,7 @@ from urdfenvs.urdf_common.urdf_env import UrdfEnv
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
-
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -45,19 +44,19 @@ def initalize_environment(render=True):
                 "suspension_right_joint",
                 "suspension_left_joint",
             ],
-            wheel_radius = 0.1,
-            wheel_distance = 0.4044,
-            spawn_offset = np.array([-0.1764081, 0.0, 0.1]),
+            wheel_radius=0.1,
+            wheel_distance=0.4044,
+            spawn_offset=np.array([-0.1764081, 0.0, 0.1]),
         ),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=['position', 'size'],
-            variance=0.0
+        goal_mask=["position", "weight"],
+        obstacle_mask=['position', 'size'],
+        variance=0.0
     )
     pos0 = np.zeros(20)
     pos0[0] = 0.0
@@ -94,7 +93,7 @@ def initalize_environment(render=True):
     }
     # Transform goal and obst into world frame
     goal = GoalComposition(name="goal", content_dict=goal_dict)
-    #goal.shuffle()
+    # goal.shuffle()
 
     goal_transformed_dict = deepcopy(goal_dict)
     desired_position = deepcopy(goal.primary_goal().position().tolist())
@@ -178,7 +177,7 @@ def run_tiago_example(n_steps=5000, render=True):
     qdot = np.zeros(7)
     body_arguments = {}
     for i in [3, 4, 5, 6, 7]:
-        body_arguments[f'radius_body_arm_{arm}_{i}_link'] =np.array([0.1])
+        body_arguments[f'radius_body_arm_{arm}_{i}_link'] = np.array([0.1])
 
     for _ in range(n_steps):
         ob_robot = ob['robot_0']
@@ -204,6 +203,7 @@ def run_tiago_example(n_steps=5000, render=True):
         ob, *_ = env.step(augmented_action)
     env.close()
     return {}
+
 
 if __name__ == "__main__":
     res = run_tiago_example(n_steps=5000)

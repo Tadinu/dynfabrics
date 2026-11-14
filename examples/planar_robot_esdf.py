@@ -18,9 +18,10 @@ from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 import pybullet
 from scipy import ndimage
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 logging.basicConfig(level=logging.INFO)
+
 
 def edf(pos, proj_rgb) -> tuple:
     # to binary image, obstacle are red
@@ -59,7 +60,7 @@ def get_top_view_image(save=False, load_only=False):
         proj_depth = np.load(depth_file)
     except FileNotFoundError as e:
         if load_only:
-            raise(e)
+            raise (e)
         width_res = 130
         height_res = 100
         img = pybullet.getCameraImage(
@@ -72,6 +73,7 @@ def get_top_view_image(save=False, load_only=False):
             np.save('proj_depth_planar_arm', proj_depth)
     return proj_rgb, proj_depth
 
+
 def initalize_environment(render=True):
     """
     Initializes the simulation environment.
@@ -83,14 +85,14 @@ def initalize_environment(render=True):
     robots = [
         GenericUrdfReacher(urdf=urdf_file, mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "weight"],
-            obstacle_mask=["position", "size"],
-            variance=0.0,
+        goal_mask=["position", "weight"],
+        obstacle_mask=["position", "size"],
+        variance=0.0,
     )
     # Definition of the obstacle.
     static_obst_dict = {
@@ -121,7 +123,7 @@ def initalize_environment(render=True):
     visualize_goal_dict['subgoal0']['desired_position'] = [0.0] + goal_dict['subgoal0']['desired_position']
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     vis_goal = GoalComposition(name="goal", content_dict=visualize_goal_dict)
-    obstacles = (obst1, obst2) #, obst2)
+    obstacles = (obst1, obst2)  # , obst2)
     vel0 = np.array([-0.1, -0.1])
     env.reset(vel=vel0)
     env.add_sensor(full_sensor, [0])
@@ -189,8 +191,8 @@ def run_planar_robot_esdf(n_steps=5000, render=True):
         ob_robot = ob['robot_0']
         pos_joints = ob_robot['joint_state']['position'][0:2]
 
-        #pos_link4_fun = planner._forward_kinematics._fks["panda_link4"]
-        #pos_link4 = pos_link4_fun(pos_joints)[1:3, 3]  # only return (y, z)
+        # pos_link4_fun = planner._forward_kinematics._fks["panda_link4"]
+        # pos_link4 = pos_link4_fun(pos_joints)[1:3, 3]  # only return (y, z)
         pos_link4 = planner._forward_kinematics.numpy(
             pos_joints, 'panda_link4', position_only=True
         )[1:3]

@@ -17,7 +17,7 @@ from urdfenvs.sensors.full_sensor import FullSensor
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.non_holonomic_parameterized_planner import NonHolonomicParameterizedFabricPlanner
+from dynfabrics.planner.non_holonomic_parameterized_planner import NonHolonomicParameterizedFabricPlanner
 from generic_diffdrive_mujoco_robot import GenericDiffDriveMujocoRobot
 
 logging.basicConfig(level=logging.INFO)
@@ -44,11 +44,11 @@ def initalize_environment(render: bool = True):
     render
         Boolean toggle to set rendering on (True) or off (False).
     """
-    #if os.path.exists(ROBOTTYPE):
-        #shutil.rmtree(ROBOTTYPE)
-    #robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
-    #robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
-    #del robot_model
+    # if os.path.exists(ROBOTTYPE):
+    # shutil.rmtree(ROBOTTYPE)
+    # robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
+    # robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
+    # del robot_model
 
     robot_model = LocalRobotModel(ROBOTTYPE, ROBOTMODEL)
 
@@ -80,7 +80,7 @@ def initalize_environment(render: bool = True):
         "geometry": {"position": [-0.3, -4.0, 0.0], "radius": 1.0},
     }
     obst1 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict)
-    obstacles = [obst1] # Add additional obstacles here.
+    obstacles = [obst1]  # Add additional obstacles here.
 
     # GOALS
     goal_dict = {
@@ -88,10 +88,10 @@ def initalize_environment(render: bool = True):
             "weight": 1.0,
             "is_primary_goal": True,
             "indices": [0, 1],
-            "parent_link" : 'origin',
-            "child_link" : 'ee_link',
+            "parent_link": 'origin',
+            "child_link": 'ee_link',
             "desired_position": [0.0, -6.0],
-            "epsilon" : 0.1,
+            "epsilon": 0.1,
             "type": "staticSubGoal"
         }
     }
@@ -166,7 +166,7 @@ def run_boxer_example(n_steps=10000, render=True):
     planner = set_planner(goal, env.dt)
     action = np.zeros(4)
     ob, *_ = env.step(action)
-    #env.reconfigure_camera(3.000001907348633, -90.00001525878906, -94.20011138916016, (0.15715950727462769, -2.938774585723877, -0.02000000700354576))
+    # env.reconfigure_camera(3.000001907348633, -90.00001525878906, -94.20011138916016, (0.15715950727462769, -2.938774585723877, -0.02000000700354576))
 
     for _ in range(n_steps):
         ob_robot = ob['robot_0']
@@ -199,6 +199,3 @@ def run_boxer_example(n_steps=10000, render=True):
 
 if __name__ == "__main__":
     res = run_boxer_example(n_steps=10000, render=True)
-
-
-

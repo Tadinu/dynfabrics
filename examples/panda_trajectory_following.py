@@ -13,7 +13,7 @@ from urdfenvs.sensors.full_sensor import FullSensor
 from mpscenes.goals.goal_composition import GoalComposition
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 
 def initalize_environment(render=True):
@@ -26,14 +26,14 @@ def initalize_environment(render=True):
     robots = [
         GenericUrdfReacher(urdf="panda.urdf", mode="acc"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
     full_sensor = FullSensor(
-            goal_mask=["position", "velocity", "weight"],
-            obstacle_mask=[],
-            variance=0.0
+        goal_mask=["position", "velocity", "weight"],
+        obstacle_mask=[],
+        variance=0.0
     )
     # Definition of the goal.
     goal_dict = {
@@ -104,7 +104,6 @@ def run_panda_trajectory_example(n_steps=5000, render=True, dynamic_fabric: bool
     planner = set_planner(goal)
     action = np.zeros(7)
     ob, *_ = env.step(action)
-
 
     sub_goal_0_acceleration = np.zeros(3)
     logging.warning(f"Running example with dynamic fabrics? {dynamic_fabric}")

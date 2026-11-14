@@ -1,8 +1,8 @@
 import casadi as ca
 import pytest
 
-from fabrics.helpers.variables import Variables
-from fabrics.components.leaves.dynamic_geometry import DynamicObstacleLeaf
+from dynfabrics.helpers.variables import Variables
+from dynfabrics.components.leaves.dynamic_geometry import DynamicObstacleLeaf
 
 
 def test_dynamic_obstacle_generation():

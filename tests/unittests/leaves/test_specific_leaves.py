@@ -2,9 +2,10 @@ from copy import deepcopy
 import casadi as ca
 import pytest
 import numpy as np
-from fabrics.helpers.variables import Variables
+from dynfabrics.helpers.variables import Variables
 
-from fabrics.components.leaves.geometry import CapsuleCuboidLeaf, CapsuleSphereLeaf, LimitLeaf, PlaneConstraintGeometryLeaf, SelfCollisionLeaf
+from dynfabrics.components.leaves.geometry import CapsuleCuboidLeaf, CapsuleSphereLeaf, LimitLeaf, \
+    PlaneConstraintGeometryLeaf, SelfCollisionLeaf
 
 
 def test_limit_leaf():
@@ -17,6 +18,7 @@ def test_limit_leaf():
     assert ca.is_equal(limit_leaf_upper.map()._phi, 1.0 - q[0], 2)
     limit_leaf_lower = LimitLeaf(root_variables, 1, -1.0, 0)
     assert ca.is_equal(limit_leaf_lower.map()._phi, q[1] - -1.0, 2)
+
 
 def test_self_collision_leaf():
     q = ca.SX.sym("q", 2)
@@ -37,6 +39,7 @@ def test_self_collision_leaf():
     phi_test = phi_test(*value)
     assert np.isclose(phi_ground_truth, phi_test)
 
+
 def test_plane_constraint_leaf():
     q = ca.SX.sym("q", 2)
     qdot = ca.SX.sym("qdot", 2)
@@ -55,6 +58,7 @@ def test_plane_constraint_leaf():
     )
     assert x == pytest.approx(0.35)
 
+
 def test_capsule_sphere_leaf():
     q = ca.SX.sym("q", 2)
     qdot = ca.SX.sym("qdot", 2)
@@ -66,7 +70,7 @@ def test_capsule_sphere_leaf():
     capsule_sphere_leaf = CapsuleSphereLeaf(
         root_variables,
         "capsule",
-        "sphere", 
+        "sphere",
         fk_1,
         fk_2,
     )
@@ -81,6 +85,7 @@ def test_capsule_sphere_leaf():
     )
     assert x == pytest.approx(0.05)
 
+
 def test_capsule_cuboid_leaf():
     q = ca.SX.sym("q", 2)
     qdot = ca.SX.sym("qdot", 2)
@@ -92,7 +97,7 @@ def test_capsule_cuboid_leaf():
     capsule_cuboid_leaf = CapsuleCuboidLeaf(
         root_variables,
         "capsule",
-        "cuboid", 
+        "cuboid",
         fk_1,
         fk_2,
     )

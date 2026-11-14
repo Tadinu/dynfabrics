@@ -21,7 +21,8 @@ from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.obstacles.box_obstacle import BoxObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+
 logging.basicConfig(level=logging.INFO)
 
 NUMBER_OF_RAYS = 10
@@ -38,6 +39,7 @@ urdf_file = urdf_model.get_urdf_path()
 robot_model = LocalRobotModel(ROBOTTYPE, ROBOTMODEL)
 xml_file = robot_model.get_xml_path()
 
+
 def get_goal_fsd():
     goal_dict = {
         "subgoal0": {
@@ -53,6 +55,7 @@ def get_goal_fsd():
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     return goal
+
 
 def get_obstacles_fsd():
     static_obst_dict = {
@@ -90,11 +93,11 @@ def initalize_environment(render: bool = True):
     render
         Boolean toggle to set rendering on (True) or off (False).
     """
-    #if os.path.exists(ROBOTTYPE):
+    # if os.path.exists(ROBOTTYPE):
     #    shutil.rmtree(ROBOTTYPE)
-    #robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
-    #robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
-    #del robot_model
+    # robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
+    # robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
+    # del robot_model
     robots = [
         GenericMujocoRobot(
             xml_file=xml_file,
@@ -112,19 +115,19 @@ def initalize_environment(render: bool = True):
         physics_engine_name="mujoco"
     )
     fsd_sensor = FreeSpaceDecompositionSensor(
-            'lidar_sensor_link',
-            max_radius=5,
-            plotting_interval=100,
-            nb_rays=NUMBER_OF_RAYS,
-            number_constraints=NUMBER_OF_CONSTRAINTS,
-            physics_engine_name="mujoco"
+        'lidar_sensor_link',
+        max_radius=5,
+        plotting_interval=100,
+        nb_rays=NUMBER_OF_RAYS,
+        number_constraints=NUMBER_OF_CONSTRAINTS,
+        physics_engine_name="mujoco"
     )
     # Definition of the obstacle.
     obstacles = get_obstacles_fsd()
     # Definition of the goal.
     goal = get_goal_fsd()
     env = GenericMujocoEnv(robots=robots, obstacles=obstacles, goals=goal.sub_goals(),
-                           sensors=[full_sensor], # fsd_sensor
+                           sensors=[full_sensor],  # fsd_sensor
                            width=1024,
                            height=960,
                            render=render)
@@ -191,7 +194,7 @@ def run_point_robot(n_steps=10000, render: bool = True):
         Boolean toggle to set rendering on (True) or off (False).
     """
     (env, goal, obstacles) = initalize_environment(render)
-    #env.reconfigure_camera(5, 0, 270.1, [0, 0, 0])
+    # env.reconfigure_camera(5, 0, 270.1, [0, 0, 0])
     planner = set_planner(goal, env.dt)
 
     action = np.array([0.0, 0.0, 0.0])
@@ -225,13 +228,14 @@ def run_point_robot(n_steps=10000, render: bool = True):
             x_obst_3=obstacle_pos(3),
             radius_body_base_link=np.array([0.35]),
         )
-        #for i in range(NUMBER_OF_CONSTRAINTS):
+        # for i in range(NUMBER_OF_CONSTRAINTS):
         #    arguments[f"constraint_{i}"] = ob_robot["FreeSpaceDecompSensor"][f"constraint_{i}"]
         action = planner.compute_action(**arguments)
         ob, *_, = env.step(action)
         t1 = time.perf_counter()
-        #print(t1-t0)
+        # print(t1-t0)
     return {}
+
 
 if __name__ == "__main__":
     res = run_point_robot(n_steps=10000)

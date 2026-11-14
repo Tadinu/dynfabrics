@@ -13,9 +13,8 @@ from urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
 from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 from generic_diffdrive_mujoco_robot import GenericDiffDriveMujocoRobot
-
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -37,11 +36,11 @@ def initalize_environment(render: bool = True):
     Adds obstacles and goal visualizaion to the environment based and
     steps the simulation once.
     """
-    #if os.path.exists(ROBOTTYPE):
-        #shutil.rmtree(ROBOTTYPE)
-    #robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
-    #robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
-    #del robot_model
+    # if os.path.exists(ROBOTTYPE):
+    # shutil.rmtree(ROBOTTYPE)
+    # robot_model = RobotModel(ROBOTTYPE, ROBOTMODEL)
+    # robot_model.copy_model(os.path.join(os.path.dirname(os.path.abspath(__file__)), ROBOTTYPE))
+    # del robot_model
 
     robot_model = LocalRobotModel(ROBOTTYPE, ROBOTMODEL)
     xml_file = robot_model.get_xml_path()
@@ -185,7 +184,7 @@ def run_tiago_example(n_steps=5000, render=True):
     qdot = np.zeros(7)
     body_arguments = {}
     for i in [3, 4, 5, 6, 7]:
-        body_arguments[f'radius_body_arm_{arm}_{i}_link'] =np.array([0.1])
+        body_arguments[f'radius_body_arm_{arm}_{i}_link'] = np.array([0.1])
 
     for _ in range(n_steps):
         ob_robot = ob['robot_0']

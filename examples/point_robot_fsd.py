@@ -14,7 +14,7 @@ from mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from mpscenes.obstacles.box_obstacle import BoxObstacle
 from mpscenes.goals.goal_composition import GoalComposition
 
-from fabrics.planner.parameterized_planner import ParameterizedFabricPlanner
+from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
 NUMBER_OF_RAYS = 10
 NUMBER_OF_CONSTRAINTS = 10
@@ -22,24 +22,25 @@ NUMBER_OF_CONSTRAINTS = 10
 
 def get_goal_fsd():
     goal_dict = {
-            "subgoal0": {
-                "weight": 5,
-                "is_primary_goal": True,
-                "indices": [0, 1],
-                "parent_link" : 'world',
-                "child_link" : 'base_link',
-                "desired_position": [3.5, 0.5],
-                "epsilon" : 0.1,
-                "type": "staticSubGoal"
-            }
+        "subgoal0": {
+            "weight": 5,
+            "is_primary_goal": True,
+            "indices": [0, 1],
+            "parent_link": 'world',
+            "child_link": 'base_link',
+            "desired_position": [3.5, 0.5],
+            "epsilon": 0.1,
+            "type": "staticSubGoal"
+        }
     }
     goal = GoalComposition(name="goal", content_dict=goal_dict)
     return goal
 
+
 def get_obstacles_fsd():
     static_obst_dict = {
-            "type": "sphere",
-            "geometry": {"position": [2.0, -0.5, 0.15], "radius": 0.8},
+        "type": "sphere",
+        "geometry": {"position": [2.0, -0.5, 0.15], "radius": 0.8},
     }
     obst1 = SphereObstacle(name="staticObst1", content_dict=static_obst_dict)
     static_obst_dict = {
@@ -59,6 +60,7 @@ def get_obstacles_fsd():
     obst4 = BoxObstacle(name="staticObst", content_dict=static_obst_dict)
     return [obst1, obst2, obst3, obst4]
 
+
 def initalize_environment(render):
     """
     Initializes the simulation environment.
@@ -74,7 +76,7 @@ def initalize_environment(render):
     robots = [
         GenericUrdfReacher(urdf="pointRobot.urdf", mode="vel"),
     ]
-    env: UrdfEnv  = gym.make(
+    env: UrdfEnv = gym.make(
         "urdf-env-v0",
         dt=0.01, robots=robots, render=render
     ).unwrapped
@@ -87,11 +89,11 @@ def initalize_environment(render):
         variance=0.0,
     )
     fsd_sensor = FreeSpaceDecompositionSensor(
-            'lidar_sensor_joint',
-            max_radius=5,
-            plotting_interval=100,
-            nb_rays=NUMBER_OF_RAYS,
-            number_constraints=NUMBER_OF_CONSTRAINTS,
+        'lidar_sensor_joint',
+        max_radius=5,
+        plotting_interval=100,
+        nb_rays=NUMBER_OF_RAYS,
+        number_constraints=NUMBER_OF_CONSTRAINTS,
     )
     # Definition of the obstacle.
     obstacles = get_obstacles_fsd()
@@ -189,8 +191,9 @@ def run_point_robot_urdf(n_steps=10000, render=True):
         action = planner.compute_action(**arguments)
         ob, *_, = env.step(action)
         t1 = time.perf_counter()
-        print(t1-t0)
+        print(t1 - t0)
     return {}
+
 
 if __name__ == "__main__":
     res = run_point_robot_urdf(n_steps=10000, render=True)
