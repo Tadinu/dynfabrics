@@ -3,12 +3,11 @@ from dataclasses import dataclass, field
 from abc import abstractmethod
 import numpy as np
 
+from scipy.spatial.transform import Rotation
 from dynfabrics.mpscenes.common.component import MPComponent
 
 
-def quaternion_to_homogeneous_matrix(
-        translation: np.ndarray, quaternion: np.ndarray
-) -> np.ndarray:
+def quaternion_to_homogeneous_matrix(translation: np.ndarray, quaternion: np.ndarray) -> np.ndarray:
     w, x, y, z = quaternion
 
     # Normalize the quaternion
@@ -143,11 +142,23 @@ class CollisionObstacle(MPComponent):
         """
         return np.array(self.geometry().orientation)
 
+    def rotation_matrix(self, **kwargs) -> np.ndarray:
+        return Rotation.from_quat(self.orientation(), scalar_first=True).as_matrix()
+
     def position(self, **kwargs) -> np.ndarray:
         """
         Get the position of the obstacle, xyz.
         """
         return np.array(self.geometry().position)
+
+    def pose(self, **kwargs) -> np.ndarray:
+        """
+        Get the pose of the obstacle, xyzw.
+        """
+        pose = np.eye(4)
+        pose[:3, :3] = self.rotation_matrix()
+        pose[:3, 3] = self.position()
+        return pose
 
     def rgba(self) -> np.ndarray:
         """

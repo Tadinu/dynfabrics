@@ -331,7 +331,7 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 2):
     )
     planner = ParameterizedFabricPlanner(
         degrees_of_freedom,
-        forward_kinematics=forward_kinematics
+        adam_kindyn=forward_kinematics
     )
     q = planner.variables.position_variable()
     collision_links = ['link1', 'link4']

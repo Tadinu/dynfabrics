@@ -27,14 +27,14 @@ class NonHolonomicParameterizedFabricPlanner(ParameterizedFabricPlanner):
     def __init__(
             self,
             dof: int,
-            forward_kinematics: ForwardKinematics,
+            adam_kindyn: ForwardKinematics,
             facing_direction: str = '-y',
             **kwargs
     ):
         self.leaves = {}
         self._dof = dof
         self._config = NonHolonomicFabricPlannerConfig(**kwargs)
-        self._forward_kinematics = forward_kinematics
+        self._forward_kinematics = adam_kindyn
         self.initialize_joint_variables()
         self.set_base_geometry()
         self._target_velocity = np.zeros(self._geometry.x().size()[0])

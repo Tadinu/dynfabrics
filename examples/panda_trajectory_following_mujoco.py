@@ -6,6 +6,8 @@ import logging
 import numpy as np
 from importlib import resources
 
+# from adam.casadi import KinDynComputations
+
 from dynfabrics.forwardkinematics.xmlFks.generic_xml_fk import GenericXMLFk
 from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoEnv
 from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
@@ -15,7 +17,7 @@ from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
-from mjmanip.robot.panda_nohand import PANDA_XML_PATH
+from mjmanip.robot.panda_nohand import PANDA_DYNFABRICS_XML_PATH
 
 
 def initalize_environment(render=True):
@@ -27,7 +29,7 @@ def initalize_environment(render=True):
     """
 
     # xml_file = robot_model.get_xml_path()
-    robots = [GenericMujocoRobot(xml_file=PANDA_XML_PATH)]
+    robots = [GenericMujocoRobot(xml_file=PANDA_DYNFABRICS_XML_PATH)]
     home_config = np.array([0, -1.57079, 0, 1.57079, -0.7853, 0.04, 0.04])
 
     # Sensors
@@ -96,12 +98,12 @@ def initalize_environment(render=True):
                            height=960,
                            obstacles=obstacles,
                            render=render,
-                           enforce_real_time=False)
+                           enforce_real_time=True)
     env.reset(pos=home_config)
     return (env, goal, obstacles)
 
 
-def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7):
+def set_planner(env, goal: GoalComposition, obstacles, degrees_of_freedom: int = 7):
     """
     Initializes the fabric planner for the panda robot.
 
@@ -119,37 +121,26 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7):
     degrees_of_freedom: int
         Degrees of freedom of the robot (default = 7)
     """
-    with open(PANDA_XML_PATH, "r", encoding="utf-8") as file:
-        xml = file.read()
-    forward_kinematics = GenericXMLFk(
-        xml,
-        root_link="link0",
-        end_links=["attachment"]
-    )
+    joints_name_list = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'joint7']
+    env.joint_ids = [env.robot_model.joint(name).id for name in joints_name_list]
+    # kindyn = KinDynComputations(urdfstring=env.robot_model, joints_name_list=joints_name_list)
+    kindyn = GenericXMLFk(PANDA_DYNFABRICS_XML_PATH,
+                          root_link="link0", end_links=['attachment'])
     planner = ParameterizedFabricPlanner(
         degrees_of_freedom,
-        forward_kinematics,
+        kindyn
     )
     # The planner hides all the logic behind the function set_components.
-    collision_links = ['link7']
+    collision_links = ["attachment"]
     self_collision_pairs = {}
     # No need to add limits for joint fingers regardless
-    panda_limits = [
-        [-2.8973, 2.8973],
-        [-1.7628, 1.7628],
-        [-2.8973, 2.8973],
-        [-3.0718, -0.0698],
-        [-2.8973, 2.8973],
-        [-0.0175, 3.7525],
-        [-2.8973, 2.8973]
-    ]
     planner.set_components(
         collision_links=collision_links,
         self_collision_pairs=self_collision_pairs,
         goal=goal,
-        number_obstacles=3,
+        number_obstacles=len(obstacles),
         number_plane_constraints=1,
-        limits=panda_limits
+        limits=env.robot_model.jnt_range[env.joint_ids].tolist(),
     )
     planner.concretize()
     return planner
@@ -157,8 +148,8 @@ def set_planner(goal: GoalComposition, degrees_of_freedom: int = 7):
 
 def run_panda_trajectory_example(n_steps=5000, render=True, dynamic_fabric: bool = True):
     (env, goal, obstacles) = initalize_environment(render)
-    planner = set_planner(goal)
-    ob, *_ = env.step(np.zeros(7))
+    planner = set_planner(env, goal, obstacles)
+    ob, *_ = env.step(np.zeros(len(env.joint_ids)))
 
     sub_goal_0_acceleration = np.zeros(3)
     logging.warning(f"Running example with dynamic fabrics? {dynamic_fabric}")
@@ -175,7 +166,7 @@ def run_panda_trajectory_example(n_steps=5000, render=True, dynamic_fabric: bool
             xdot_ref_goal_0_leaf=sub_goal_0_velocity,
             xddot_ref_goal_0_leaf=sub_goal_0_acceleration,
             weight_goal_0=ob_robot['FullSensor']['goals'][0]['weight'],
-            radius_body_link7=0.02,
+            radius_body_attachment=0.01,
             radius_obst_0=obstacles[0].size()[0],
             x_obst_0=obstacles[0].position(),
             constraint_0=np.array([0.0, 0.0, 1.0, -0.1]),
@@ -185,7 +176,7 @@ def run_panda_trajectory_example(n_steps=5000, render=True, dynamic_fabric: bool
             x_obst_2=obstacles[2].position(),
         )
         print("ACTION", action)
-        ob, *_ = env.step(action[:7])
+        ob, *_ = env.step(action[env.joint_ids])
     env.close()
     return {}
 

@@ -9,17 +9,17 @@ from dynfabrics.mpscenes.obstacles.sphere_obstacle import SphereObstacle
 from dynfabrics.mpscenes.obstacles.box_obstacle import BoxObstacle
 from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 
-from mjmanip.robot.panda_nohand import PANDA_XML_PATH
+from mjmanip.robot.panda_nohand import PANDA_DYNFABRICS_XML_PATH
 
 
-def initalize_environment(render=True):
+def initialize_environment(render=True):
     """
     Initializes the simulation environment.
 
     Adds obstacles and goal visualizaion to the environment based and
     steps the simulation once.
     """
-    robots = [GenericMujocoRobot(xml_file=PANDA_XML_PATH)]
+    robots = [GenericMujocoRobot(xml_file=PANDA_DYNFABRICS_XML_PATH)]
     home_config = np.array([0, -1.57079, 0, 1.57079, -0.7853, 0.04, 0.04])
 
     # Definition of the obstacles
@@ -62,22 +62,22 @@ def initalize_environment(render=True):
     # Definition of the goal.
     goal_dict = {
         "subgoal0": {
-            "weight": 1.0,
-            "is_primary_goal": False,
+            "weight": 2.0,
+            "is_primary_goal": True,
             "indices": [0, 1, 2],
             "parent_link": "link0",
             "child_link": "attachment",
-            "desired_position": [0.5, 0.6, 0.3],
+            "desired_pose": [0.5, 0.6, 0.3, 1, 0, 0, 0],
             "epsilon": 0.05,
             "type": "staticSubGoal",
         },
         "subgoal1": {
-            "weight": 2.0,
-            "is_primary_goal": True,
+            "weight": 1.0,
+            "is_primary_goal": False,
             "indices": [0, 1, 2],
             "parent_link": "link7",
             "child_link": "attachment",
-            "desired_position": [0.0, 0.0, -0.1],
+            "desired_pose": [0.0, 0.2, 0.5, 1, 0, 0, 0],
             "epsilon": 0.05,
             "type": "staticSubGoal",
         }
@@ -90,7 +90,7 @@ def initalize_environment(render=True):
     return (env, goal, obstacles)
 
 
-def set_planner(goal: GoalComposition, dt: float):
+def set_planner(env, goal: GoalComposition, obstacles, dt: float):
     """
     Initializes the fabric planner for the panda robot.
 
@@ -121,7 +121,7 @@ def set_planner(goal: GoalComposition, dt: float):
     # }
     # planner = ParameterizedFabricPlanner(
     #     degrees_of_freedom,
-    #     forward_kinematics,
+    #     kindyn,
     #     base_inertia=base_inertia,
     #     attractor_potential=attractor_potential,
     #     damper=damper,
@@ -133,39 +133,27 @@ def set_planner(goal: GoalComposition, dt: float):
     finsler_plane_constraint: str = (
         "1.0/(x**1) * xdot**2"
     )
-    absolute_path = os.path.dirname(os.path.abspath(__file__))
-    with open(PANDA_XML_PATH, "r", encoding="utf-8") as file:
-        xml = file.read()
-    forward_kinematics = GenericXMLFk(
-        xml,
-        root_link="link0",
-        end_links=["attachment"],
-    )
+    joints_name_list = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'joint7']
+    env.joint_ids = [env.robot_model.joint(name).id for name in joints_name_list]
+    # kindyn = KinDynComputations(urdfstring=env.robot_model, joints_name_list=joints_name_list)
+    kindyn = GenericXMLFk(PANDA_DYNFABRICS_XML_PATH,
+                          root_link="link0", end_links=['attachment'])
     planner = ParameterizedFabricPlanner(
-        7,
-        forward_kinematics,
+        len(joints_name_list),
+        kindyn,
         collision_geometry=collision_geometry,
         geometry_plane_constraint=geometry_plane_constraint,
     )
-    collision_links = ['link7']
+    collision_links = ['attachment']
     self_collision_pairs = {}
-    panda_limits = [
-        [-2.8973, 2.8973],
-        [-1.7628, 1.7628],
-        [-2.8973, 2.8973],
-        [-3.0718, -0.0698],
-        [-2.8973, 2.8973],
-        [-0.0175, 3.7525],
-        [-2.8973, 2.8973]
-    ]
     # The planner hides all the logic behind the function set_components.
     planner.set_components(
         collision_links=collision_links,
         self_collision_pairs=self_collision_pairs,
         goal=goal,
-        number_obstacles=3,
+        number_obstacles=len(obstacles),
         number_plane_constraints=1,
-        limits=panda_limits,
+        limits=env.robot_model.jnt_range[env.joint_ids].tolist(),
     )
     planner.concretize(mode="vel", time_step=dt)
     return planner
@@ -191,10 +179,11 @@ def forward_simulate(planner: ParameterizedFabricPlanner,
 
 
 def run_panda_example(n_steps=10000, render=True):
-    (env, goal, obstacles) = initalize_environment(render)
-    planner = set_planner(goal, env.dt)
+    (env, goal, obstacles) = initialize_environment(render)
+    planner = set_planner(env, goal, obstacles, env.dt)
+    joint_ids = env.joint_ids
     # planner.export_as_c("planner.c")
-    action = np.zeros(7)
+    action = np.zeros(len(joint_ids))
     ob, *_ = env.step(action)
     """
     body_links={1: 0.1, 2: 0.1, 3: 0.1, 4: 0.1, 7: 0.1}
@@ -206,7 +195,7 @@ def run_panda_example(n_steps=10000, render=True):
         weight_goal_0=goal.sub_goals()[0].weight(),
         x_goal_1=goal.sub_goals()[1].position(),
         weight_goal_1=goal.sub_goals()[1].weight(),
-        radius_body_link7=0.20,
+        radius_body_attachment=0.01,
         radius_obst_0=obstacles[0].size()[0],
         x_obst_0=obstacles[0].position(),
         constraint_0=np.array([0.0, 0.0, 1.0, -0.1]),
@@ -219,14 +208,14 @@ def run_panda_example(n_steps=10000, render=True):
         # constraint_1=np.array([0.0, 1.0, 0.0, 0.0]),
     )
 
-    q0 = ob['robot_0']['joint_state']['position'][0:7]
+    q0 = ob['robot_0']['joint_state']['position'][joint_ids]
     trajectory_forward = forward_simulate(planner, q0, arguments, n_steps, env.dt)
     trajectory_actual = np.zeros_like(trajectory_forward)
 
     for i in range(n_steps):
-        q = ob['robot_0']['joint_state']['position'][0:7]
+        q = ob['robot_0']['joint_state']['position'][joint_ids]
         trajectory_actual[i] = q
-        qdot = ob['robot_0']['joint_state']['velocity'][0:7]
+        qdot = ob['robot_0']['joint_state']['velocity'][joint_ids]
         action = planner.compute_action(q=q, qdot=qdot, **arguments)
         ob, reward, terminated, truncated, info = env.step(action)
 

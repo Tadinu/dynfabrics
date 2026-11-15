@@ -83,7 +83,10 @@ class DynamicSubGoal(SubGoal):
     def dict(self):
         return OmegaConf.to_container(self._config)
 
-    def position(self, **kwargs) -> np.ndarray:
+    def pose(self, **kwargs) -> np.ndarray:
+        return self.evaluate_trajectory(**kwargs)[0]
+
+    def position(self, **kwargs):
         return self.evaluate_trajectory(**kwargs)[0]
 
     def velocity(self, **kwargs) -> np.ndarray:

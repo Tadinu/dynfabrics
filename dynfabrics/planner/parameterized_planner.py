@@ -7,13 +7,11 @@ import casadi as ca
 import deprecation
 import numpy as np
 
-from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
+from pyquaternion import Quaternion
+from dynfabrics import __version__
 from dynfabrics.forwardkinematics import LinkDescriptionNotFoundError
 from dynfabrics.mpscenes.goals.goal_composition import GoalComposition
 from dynfabrics.mpscenes.goals.sub_goal import SubGoal
-from pyquaternion import Quaternion
-
-from dynfabrics import __version__
 from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
 from dynfabrics.components.energies.execution_energies import ExecutionLagrangian
 from dynfabrics.components.leaves.attractor import GenericAttractor
@@ -77,10 +75,10 @@ class ParameterizedFabricPlanner(object):
     leaves: Dict[str, Leaf]
     _ref_sign: int
 
-    def __init__(self, dof: int, forward_kinematics: ForwardKinematics, **kwargs):
+    def __init__(self, dof: int, fk: ForwardKinematics, **kwargs):
         self._dof = dof
         self._config = FabricPlannerConfig(**kwargs)
-        self._forward_kinematics = forward_kinematics
+        self._fk = fk
         self.initialize_joint_variables()
         self.set_base_geometry()
         self._target_velocity = np.zeros(self._geometry.x().size()[0])
@@ -259,21 +257,10 @@ class ParameterizedFabricPlanner(object):
     def get_forward_kinematics(self, link_name, position_only: bool = True) -> ca.SX:
         if isinstance(link_name, ca.SX):
             return link_name
-
-        if self._forward_kinematics._desc.endswith(".urdf"):
-            fk = self._forward_kinematics.casadi(
-                self._variables.position_variable(),
-                parent_link=self._forward_kinematics._root_link,
-                child_link=link_name,
-                position_only=True
-            )
-        else:
-            fk = self._forward_kinematics.casadi(
-                self._variables.position_variable(),
-                child_link=link_name,
-                position_only=True
-            )
-        return fk
+        return self._fk.casadi(
+            self._variables.position_variable(),
+            link_name,
+            position_only=position_only)
 
     def add_capsule_sphere_geometry(
             self,
@@ -292,8 +279,8 @@ class ParameterizedFabricPlanner(object):
             self._variables,
             capsule_name,
             obstacle_name,
-            tf_center_0[0:3, 3],
-            tf_center_1[0:3, 3],
+            tf_center_0[:3, 3],
+            tf_center_1[:3, 3],
         )
         capsule_sphere_leaf.set_geometry(self.config.collision_geometry)
         capsule_sphere_leaf.set_finsler_structure(self.config.collision_finsler)
@@ -316,8 +303,8 @@ class ParameterizedFabricPlanner(object):
             self._variables,
             capsule_name,
             obstacle_name,
-            tf_center_0[0:3, 3],
-            tf_center_1[0:3, 3],
+            tf_center_0[:3, 3],
+            tf_center_1[:3, 3],
         )
         capsule_cuboid_leaf.set_geometry(self.config.collision_geometry)
         capsule_cuboid_leaf.set_finsler_structure(self.config.collision_finsler)
@@ -385,7 +372,7 @@ class ParameterizedFabricPlanner(object):
     ) -> None:
         geometry = DynamicObstacleLeaf(
             self._variables,
-            forward_kinematics[0:dynamic_obstacle_dimension],
+            forward_kinematics[:dynamic_obstacle_dimension, 3],
             obstacle_name,
             collision_link_name,
             reference_parameters=reference_parameters
@@ -514,12 +501,12 @@ class ParameterizedFabricPlanner(object):
             fk = self.get_forward_kinematics(link_name, position_only=False)
             if fk.shape == (3, 3):
                 fk_augmented = ca.SX.eye(4)
-                fk_augmented[0:2, 0:2] = fk[0:2, 0:2]
-                fk_augmented[0:2, 3] = fk[0:2, 2]
+                fk_augmented[:2, :2] = fk[:2, :2]
+                fk_augmented[:2, 3] = fk[:2, 2]
                 fk = fk_augmented
-            if fk.shape == (4, 4) and is_sparse(fk[0:3, 3]):
+            if fk.shape == (4, 4) and is_sparse(fk[:3, 3]):
                 message = (
-                    f"Expression {fk[0:3, 3]} for link {link_name} "
+                    f"Expression {fk[:3, 3]} for link {link_name} "
                     "is sparse and thus skipped."
                 )
                 logging.warning(message.format_map(locals()))
@@ -686,7 +673,7 @@ class ParameterizedFabricPlanner(object):
             fk_sub_goal = self.get_differential_map(j, sub_goal)
             if is_sparse(fk_sub_goal):
                 raise ExpressionSparseError()
-            if sub_goal.type() in ["analyticSubGoal", "splineSubGoal"]:
+            if sub_goal.type() in ["dynamicSubGoal", "analyticSubGoal", "splineSubGoal"]:
                 attractor = GenericDynamicAttractor(self._variables, fk_sub_goal, f"goal_{j}")
             else:
                 self._variables.add_parameter(f'x_goal_{j}', ca.SX.sym(f'x_goal_{j}', sub_goal.dimension()))

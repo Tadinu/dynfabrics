@@ -201,11 +201,7 @@ def run_kuka_example(n_steps=5000, render=True):
 
         # check if the orientation is correctly reached:
         if w % 100 == 0:
-            pose_ee = planner._forward_kinematics.numpy(
-                q,
-                parent_link='iiwa_link_0',
-                child_link='iiwa_link_ee',
-            )
+            pose_ee = planner._adam_kindyn('iiwa_link_ee', ca.SX.eye(4), q)
             rotation_distance = np.linalg.norm(pose_ee[0:3, 0:3] - rot_matrix)
             print("Distance in naive matrix norm:", rotation_distance)
     env.close()

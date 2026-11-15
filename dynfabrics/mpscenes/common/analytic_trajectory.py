@@ -28,7 +28,7 @@ class AnalyticTrajectory(ReferenceTrajectory):
         pass
 
     def evaluate(self, time_step: float) -> list:
-        position = evaluate_component(self._traj, time_step)
-        velocity = evaluate_component(self._velocity, time_step)
-        acceleration = evaluate_component(self._acceleration, time_step)
-        return [position, velocity, acceleration]
+        pose = evaluate_component(self._traj, time_step)
+        pose_vel = evaluate_component(self._velocity, time_step)
+        pose_acc = evaluate_component(self._acceleration, time_step)
+        return [pose, pose_vel, pose_acc]

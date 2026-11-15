@@ -3,7 +3,7 @@ from typing import List, Union
 import casadi as ca
 import numpy as np
 
-import dynfabrics.forwardkinematics.urdfFks.casadiConversion.urdfparser as u2c
+import dynfabrics.forwardkinematics.urdfFks.casadiConversion.urdf_parser as u2c
 from dynfabrics.forwardkinematics.fksCommon.fk import ForwardKinematics
 
 

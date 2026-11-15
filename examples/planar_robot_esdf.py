@@ -193,9 +193,7 @@ def run_planar_robot_esdf(n_steps=5000, render=True):
 
         # pos_link4_fun = planner._forward_kinematics._fks["panda_link4"]
         # pos_link4 = pos_link4_fun(pos_joints)[1:3, 3]  # only return (y, z)
-        pos_link4 = planner._forward_kinematics.numpy(
-            pos_joints, 'panda_link4', position_only=True
-        )[1:3]
+        pos_link4 = planner._adam_kindyn('panda_link4', ca.SX.eye(4), pos_joints)[1:3]
         proj_rgb, _ = get_top_view_image(save=False, load_only=True)
         edf_phi, edf_gradient_x, edf_gradient_y = edf(
             pos_link4,

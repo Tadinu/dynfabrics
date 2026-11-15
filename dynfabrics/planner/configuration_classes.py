@@ -38,7 +38,8 @@ class FabricPlannerConfig:
         "0.1/(x**1) * xdot**2"
     )
     attractor_potential: str = (
-        "5.0 * (ca.norm_2(x) + 1 / 10 * ca.log(1 + ca.exp(-2 * 10 * ca.norm_2(x))))"
+        # "20 * ca.norm_2(x) ** 4"
+        "100.0 * (ca.norm_2(x) + 1 / 10 * ca.log(1 + ca.exp(-2 * 10 * ca.norm_2(x))))"
     )
     attractor_metric: str = (
         "((2.0 - 0.3) * ca.exp(-1 * (0.75 * ca.norm_2(x))**2) + 0.3) * ca.SX(np.identity(x.size()[0]))"

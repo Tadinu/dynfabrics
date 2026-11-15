@@ -100,7 +100,10 @@ class ParameterizedPlaneConstraintMap(ParameterizedGeometryMap):
             constraint_variable,
             radius_body_variable,
     ):
-        phi = ca.fabs(ca.dot(constraint_variable[0:3], fk) + constraint_variable[3]) / ca.norm_2(
-            constraint_variable[0:3]) - radius_body_variable
+        pos = fk
+        normal = constraint_variable[0:3]
+        offset = constraint_variable[3]
+
+        phi = ca.fabs(ca.dot(normal, pos) + offset) / ca.norm_2(normal) - radius_body_variable
 
         super().__init__(phi, var)

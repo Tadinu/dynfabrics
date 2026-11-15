@@ -9,7 +9,6 @@ from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_env import GenericMujocoE
 from dynfabrics.urdfenvs.generic_mujoco.generic_mujoco_robot import GenericMujocoRobot
 
 from dynfabrics.urdfenvs.urdf_common.urdf_env import UrdfEnv
-from dynfabrics.urdfenvs.urdf_common.helpers import add_shape as urdf_env_add_shape
 from dynfabrics.urdfenvs.robots.generic_urdf import GenericUrdfReacher
 from dynfabrics.urdfenvs.sensors.full_sensor import FullSensor
 import os
@@ -26,25 +25,6 @@ from dynfabrics.planner.parameterized_planner import ParameterizedFabricPlanner
 import sys
 import subprocess
 import os
-import torch
-from pytorch3d.io import load_obj, save_obj
-from pytorch3d.structures import Meshes
-from pytorch3d.utils import ico_sphere
-from pytorch3d.utils import torus
-from pytorch3d.ops import sample_points_from_meshes
-from pytorch3d.loss import (
-    chamfer_distance,
-    mesh_edge_loss,
-    mesh_laplacian_smoothing,
-    mesh_normal_consistency,
-)
-
-# Set the device
-if torch.cuda.is_available():
-    device = torch.device("cuda:0")
-else:
-    device = torch.device("cpu")
-    print("WARNING: CPU only, this will be slow!")
 
 
 def add_mujoco_shape(env, name: str, position: List[float], size: float,
@@ -175,7 +155,7 @@ def initalize_environment(render=True):
             "indices": [1, 2],
             "parent_link": "link0",
             "child_link": "link4",
-            "desired_position": [1.0, 1.2],
+            "desired_pose": [1.0, 1.2, 0.3, 1, 0, 0, 0],
             "epsilon": 0.1,
             "type": "staticSubGoal",
         },
@@ -245,7 +225,7 @@ def set_planner(goal: GoalComposition, dt: float):
     )
     planner = ParameterizedFabricPlanner(
         dof=degrees_of_freedom,
-        forward_kinematics=forward_kinematics
+        fk=forward_kinematics
     )
     q = planner.variables.position_variable()
     collision_links = ['link1', 'link4']
@@ -278,7 +258,7 @@ def run_example(n_steps=5000, render=True):
         action = planner.compute_action(
             q=joint_state["position"],
             qdot=joint_state["velocity"],
-            x_goal_0=goal_0.position(),
+            x_goal_0=goal_0.position()[:1],
             weight_goal_0=goal_0.weight(),
             x_obst_0=obstacle_pos(0),
             radius_obst_0=obstacle_size(0),

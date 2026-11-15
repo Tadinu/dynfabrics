@@ -9,7 +9,7 @@ class SubGoalCreator(object):
         pass
 
     def create_sub_goal(self, sub_goal_type, name, content_dict):
-        if sub_goal_type == "staticSubGoal":
+        if sub_goal_type in ("staticSubGoal", "dynamicSubGoal"):
             return StaticSubGoal(name=name, content_dict=content_dict)
         elif sub_goal_type in ("analyticSubGoal", "splineSubGoal"):
             return DynamicSubGoal(name=name, content_dict=content_dict)

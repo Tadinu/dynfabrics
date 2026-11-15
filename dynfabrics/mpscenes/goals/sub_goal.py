@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import List
 from abc import abstractmethod
 
+import numpy as np
+
 from dynfabrics.mpscenes.common.component import MPComponent
 from dynfabrics.mpscenes.common.errors import MissmatchDimensionError
 
@@ -34,12 +36,8 @@ class SubGoalConfig:
 
 class SubGoal(MPComponent):
     def check_dimensionality(self):
-        if isinstance(self.position(), str):
+        if isinstance(self.pose(), str):
             return
-        if len(self.indices()) != len(self.position()):
-            raise MissmatchDimensionError(
-                "SubGoal: Dimension mismatch between goal and indices"
-            )
 
     def is_primary_goal(self):
         return self._config.is_primary_goal
@@ -61,14 +59,19 @@ class SubGoal(MPComponent):
 
     def evaluate(self, **kwargs) -> list:
         return [
-            self.position(**kwargs),
+            self.pose(**kwargs),
             self.velocity(**kwargs),
             self.acceleration(**kwargs)
         ]
 
-    @abstractmethod
     def position(self, **kwargs):
-        pass
+        return np.zeros(3)
+
+    def orientation(self, **kwargs):
+        return np.array([1, 0, 0, 0])
+
+    def pose(self, **kwargs):
+        return np.eye(4)
 
     @abstractmethod
     def velocity(self, **kwargs):
